@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "source": "DONKI",
+    "url": "https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME",
+    "fetchedAt": "2026-11-15T13:58:30Z",
+    "isLive": false,
+    "credit": "NASA / CCMC",
+    "note": "Recent CME events"
+  },
+  "data": [
+    {
+      "cmeID": "CME-2026-001",
+      "startTime": "2026-11-10T12:00Z",
+      "peakTime": "2026-11-10T14:30Z",
+      "speed": 1200,
+      "classType": "X"
+    }
+  ]
+}

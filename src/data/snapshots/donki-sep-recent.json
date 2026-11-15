@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "source": "DONKI",
+    "url": "https://ccmc.gsfc.nasa.gov/DONKI-API/get/SEP",
+    "fetchedAt": "2026-11-15T13:59:30Z",
+    "isLive": false,
+    "credit": "NASA / CCMC",
+    "note": "Recent Solar Energetic Particle events"
+  },
+  "data": [
+    {
+      "sepID": "SEP-2026-001",
+      "startTime": "2026-11-08T05:00Z",
+      "peakTime": "2026-11-08T06:30Z",
+      "energy": ">10 MeV",
+      "intensity": "High"
+    }
+  ]
+}
