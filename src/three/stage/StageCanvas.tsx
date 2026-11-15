@@ -172,10 +172,12 @@ export function StageCanvas({
         inset: 0,
         width: '100%',
         height: '100%',
-        pointerEvents: 'auto',
+        pointerEvents: isOrbit ? 'auto' : 'none',
+        zIndex: 0,
       }}
     >
       <Canvas
+        style={{ pointerEvents: isOrbit ? 'auto' : 'none' }}
         camera={{ position: [0, 2, 10], fov: 45 }}
         dpr={[1, qualityConfig.dpr]}
         shadows={qualityConfig.shadows}

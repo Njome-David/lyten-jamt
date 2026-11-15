@@ -302,7 +302,13 @@ export function SurfaceScene({
 
   return (
     <group>
+      {/* Ambient and fill lighting: HemisphereLight debouches lunar and planetary shadows */}
+      <hemisphereLight
+        args={['#e2e8f0', '#334155', 1.5]}
+      />
       <ambientLight color={config.ambientColor} intensity={config.ambientIntensity} />
+
+      {/* Main directional sunlight */}
       <directionalLight
         position={config.sunPosition}
         color={config.sunColor}
@@ -316,6 +322,15 @@ export function SurfaceScene({
         shadow-camera-right={20}
         shadow-camera-top={20}
         shadow-camera-bottom={-20}
+      />
+
+      {/* Outpost local illumination: soft blue work lights */}
+      <pointLight
+        position={[0, 4.5, 0.5]}
+        color="#60a5fa"
+        intensity={2.0}
+        distance={25}
+        decay={2}
       />
 
       {config.fogColor && (
