@@ -28,9 +28,50 @@ export type Archetype =
   | 'repair'
   | 'uplink';
 
+export type OptionId = string; // Unique identifier for an option
+
+/** Styles d'options - vitesse / équilibre / prudence */
 export type OptionStyle = 'fast' | 'balanced' | 'careful';
 
 export type SolarLevel = 'calm' | 'active' | 'stormy';
+
+/** Enums et interfaces pour les passifs */
+export enum PassiveId {
+  SHIELD = 'shield',
+  REPAIR_KIT = 'repair_kit',
+  ENERGY_SAVER = 'energy_saver',
+}
+
+export interface Passive {
+  id: PassiveId;
+  /** Effet sur les jauges chaque tour */
+  gaugeDelta: Partial<Meters>;
+  description: string;
+}
+
+/** Niveaux de radiation */
+export enum RadiationLevel {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
+
+export interface Radiation {
+  level: RadiationLevel;
+  /** Dégâts appliqués aux jauges chaque tour */
+  gaugeDelta: Partial<Meters>;
+  description: string;
+}
+
+/** Option de jeu présentée au joueur */
+export interface Option {
+  id: OptionId;
+  preview: OptionPreview;
+}
+
+/** Interface OptionPreview – version complète (ancien et nouveau champs). */
+
+
 
 /**
  * Templates de mission.
@@ -232,14 +273,41 @@ export interface RunScore {
 // ============================================================================
 
 export interface OptionPreview {
+  /** Identifiant unique de l’option */
+  id?: OptionId;
+  /** Titre affiché dans l’UI */
+  title?: string;
+  /** Brève description sous le titre */
+  description?: string;
+  /** Coût en points d’action (0‑100). Valeurs >=30 pour rendre le choix challengeant */
+  cost?: number;
+  /** Récompense attendue (0‑100). Plus élevée que le coût pour inciter le joueur */
+  reward?: number;
+  /** Risque associé, impacte la probabilité d’échec */
+  risk?: "low" | "medium" | "high";
+  /** Modifications des jauges (optionnel) */
+  deltaEnergy?: number;   // +/‑ valeur, clamp 0‑100
+  deltaRadiation?: number; // +/‑ valeur, clamp 0‑100
+  /** Icône ou illustration associée (nom de fichier dans design/screens) */
+  icon?: string;
+  // ----- Required fields for engine contract -----
+  /** Style d’option (fast, balanced, careful) */
   style: OptionStyle;
+  /** Puissance brute de l’option */
   optionPower: number;
+  /** Net change of power after applying option */
   netPower: number;
+  /** Net change of air after applying option */
   netAir: number;
+  /** Net change of food after applying option */
   netFood: number;
+  /** Dose de radiation estimée due à l’option */
   estimatedDose: number;
+  /** Risque de panne matériel */
   faultRisk: number;
+  /** Indique si l’action se déroule à l’extérieur */
   outdoor: boolean;
+  /** Gain solaire de l’option */
   solarGain: number;
 }
 
@@ -337,3 +405,4 @@ export type BuildPlaybackFn = (
   solar?: SolarContext,
   durationMs?: number
 ) => StepPlayback;
+
