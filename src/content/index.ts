@@ -7,3 +7,4 @@ export * from './missions';
 export * from './sites';
 export * from './flags';
 export * from './dialogues';
+export * from './badges';
