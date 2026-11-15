@@ -46,6 +46,7 @@ export function DifficultyPicker({ onSelect, onBack }: DifficultyPickerProps) {
         textAlign: 'center',
         position: 'relative',
         zIndex: 1,
+        pointerEvents: 'none',
       }}
     >
       <div
@@ -58,6 +59,7 @@ export function DifficultyPicker({ onSelect, onBack }: DifficultyPickerProps) {
           width: '100%',
           boxShadow: 'var(--shadow-card)',
           backdropFilter: 'blur(12px)',
+          pointerEvents: 'auto',
         }}
       >
         <h2 style={{ fontSize: '26px', margin: '0 0 8px 0', fontWeight: 800 }}>

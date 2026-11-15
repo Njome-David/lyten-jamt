@@ -22,6 +22,7 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
         textAlign: 'center',
         position: 'relative',
         zIndex: 1,
+        pointerEvents: 'none',
       }}
     >
       <div
@@ -34,6 +35,7 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
           width: '100%',
           boxShadow: 'var(--shadow-card)',
           backdropFilter: 'blur(12px)',
+          pointerEvents: 'auto',
         }}
       >
         <div

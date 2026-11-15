@@ -68,9 +68,9 @@ export function getSolarStatus(flares?: readonly DonkiFlare[]): SolarStatus {
 
   const mult = getSolarRadiationMultiplier(level);
   const labels: Record<SolarLevel, string> = {
-    calm: 'Soleil calme (flux nominal)',
-    active: 'Soleil actif (éruptions moyennes de classe M)',
-    stormy: 'Tempête solaire (éruptions majeures de classe X)',
+    calm: 'Quiet Sun (nominal flux)',
+    active: 'Active Sun (moderate M-class flares)',
+    stormy: 'Solar Storm (major X-class flares)',
   };
 
   return {

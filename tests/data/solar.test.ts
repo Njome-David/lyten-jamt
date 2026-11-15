@@ -65,7 +65,7 @@ describe('solar module (T09)', () => {
       expect(status.highestClass).toBe('M2.1');
       expect(status.stormWarning).toBe(false);
       expect(status.baseRadiationMultiplier).toBe(1.5);
-      expect(status.label).toContain('actif');
+      expect(status.label).toContain('Active');
     });
 
     it('evaluates status with default recent snapshot without crashing', () => {
