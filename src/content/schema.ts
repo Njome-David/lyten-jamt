@@ -53,6 +53,7 @@ export const MissionSchema = z
     }),
     whyItMatters: z.string().min(1),
     enabled: z.boolean(),
+    osdrStudyId: z.string().optional(),
     steps: z.array(MissionStepSchema).length(6),
   })
   .superRefine((val, ctx) => {
