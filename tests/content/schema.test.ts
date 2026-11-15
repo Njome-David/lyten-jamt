@@ -2,6 +2,8 @@
 // Tests for content schema, missions, sites, archetypes and enabled flags (T07).
 
 import { describe, test, expect } from 'vitest';
+import { createRun, resolveStep } from '../../src/engine';
+import type { Loadout, SolarContext } from '../../src/engine/types';
 import {
   countWords,
   MissionSchema,
@@ -76,14 +78,68 @@ describe('Mission Schema & Relay Missions (Moon and Mars)', () => {
     }
   });
 
-  test('relay mission steps match the 6-archetype sequence in order', () => {
-    const expected = TEMPLATE_ARCHETYPES.relay;
-    expect(expected).toEqual(['travel', 'deploy', 'deploy', 'repair', 'uplink', 'uplink']);
-
+  test('each mission steps match its template archetype sequence in order', () => {
     for (const mission of Object.values(MISSIONS)) {
+      const expected = TEMPLATE_ARCHETYPES[mission.templateId];
       const archetypes = mission.steps.map((s) => s.archetype);
       expect(archetypes).toEqual(expected);
     }
+  });
+
+  describe('5 Moon Missions (T17)', () => {
+    const moonTemplates = ['relay', 'core', 'seismic', 'mapper', 'garden'] as const;
+
+    test('all 5 Moon missions exist, are enabled and validate', () => {
+      const moonMissions = getEnabledMissions('moon');
+      expect(moonMissions).toHaveLength(5);
+
+      for (const t of moonTemplates) {
+        const m = getMission('moon', t);
+        expect(m, `Moon mission for template ${t} must exist`).toBeDefined();
+        expect(m?.body).toBe('moon');
+        expect(m?.templateId).toBe(t);
+        expect(m?.enabled).toBe(true);
+        expect(m?.steps).toHaveLength(6);
+      }
+    });
+
+    test('Moon mission titles match SPEC.md section 5.1', () => {
+      expect(getMission('moon', 'relay')?.title).toBe('Moon Relay');
+      expect(getMission('moon', 'core')?.title).toBe('Deep Core Samples');
+      expect(getMission('moon', 'seismic')?.title).toBe('Moonquake Station');
+      expect(getMission('moon', 'mapper')?.title).toBe('Moon Ice Mapper');
+      expect(getMission('moon', 'garden')?.title).toBe('Moon Garden');
+    });
+
+    test('Moon Garden references real NASA OSDR study OSD-251', () => {
+      const garden = getMission('moon', 'garden');
+      expect(garden?.osdrStudyId).toBe('OSD-251');
+    });
+
+    test('all 5 Moon missions are playable through 6 steps by a bot without crashing', () => {
+      const dummySolar: SolarContext = {
+        level: 'active',
+        pool: [],
+        provenance: { source: 'NASA DONKI', url: '', fetchedAt: '2026-11-15T00:00:00Z', isLive: false },
+      };
+      const loadout: Loadout = { crew: 3, power: 'panels', shield: 'standard', food: 'rations' };
+
+      for (const t of moonTemplates) {
+        let state = createRun(
+          { seed: 42, body: 'moon', missionId: t, siteId: 'shackleton', difficulty: 'easy', loadout },
+          dummySolar
+        );
+
+        for (let step = 0; step < 6; step++) {
+          if (state.status !== 'running') break;
+          const result = resolveStep(state, { type: 'CHOOSE_OPTION', style: 'balanced' }, dummySolar);
+          state = result.state;
+        }
+
+        expect(state.status).toMatch(/running|won|lost/);
+        expect(state.meterHistory.length).toBeGreaterThan(0);
+      }
+    });
   });
 
   test('rejects mission with objective over 20 words', () => {
