@@ -1,53 +1,57 @@
 // src/progress/xp.ts
-// Pure XP calculation and breakdown functions.
-// Conforms to SPEC.md section 6:
-// - Welcome +50 (once)
-// - Objective +100 (won)
-// - Crew healthy (health >= 60) +80
-// - Each timed decision won +50
-// - Three stars +60
-// - Lost or ended early +25 ("lesson learned")
+// XP computation rules and breakdown according to SPEC.md section 6.
+// Follows SPEC.md section 6:
+// - Welcome: +50 (once)
+// - Objective: +100
+// - Crew healthy (health >= 60): +80
+// - Each timed decision won: +50
+// - Three stars: +60
+// - Lost or ended early ("lesson learned"): +25
 // - Streak of 3+ days: x1.2 on mission XP
 
-import type { XpBreakdown } from '../engine/types';
-
-export interface XpCalculationInput {
-  won: boolean;
-  health: number;
-  pressureWins: number;
+export interface CalculateXpParams {
+  isWon: boolean;
+  finalHealth: number;
+  timedDecisionsWon: number;
   stars: 0 | 1 | 2 | 3;
-  streakDays: number;
-  welcomeGiven: boolean;
+  giveWelcome: boolean;
+  streakCount: number;
 }
 
-export function calculateMissionXp(input: XpCalculationInput): XpBreakdown {
-  const welcome = input.welcomeGiven ? 0 : 50;
-  const objective = input.won ? 100 : 0;
-  const healthyCrew = input.won && input.health >= 60 ? 80 : 0;
-  const pressureBonus = Math.max(0, input.pressureWins) * 50;
-  const threeStarBonus = input.won && input.stars === 3 ? 60 : 0;
-  const lessonLearned = !input.won ? 25 : 0;
+export interface XpBreakdownResult {
+  welcome: number;
+  objective: number;
+  healthyCrew: number;
+  timedBonus: number;
+  threeStarBonus: number;
+  lessonLearned: number;
+  streakMultiplier: number;
+  missionXp: number;
+  total: number;
+}
 
-  const streakMultiplier = input.streakDays >= 3 ? 1.2 : 1.0;
+export function calculateProgressionXp(params: CalculateXpParams): XpBreakdownResult {
+  const welcome = params.giveWelcome ? 50 : 0;
+  const objective = params.isWon ? 100 : 0;
+  const healthyCrew = params.isWon && params.finalHealth >= 60 ? 80 : 0;
+  const timedBonus = Math.max(0, params.timedDecisionsWon) * 50;
+  const threeStarBonus = params.stars === 3 ? 60 : 0;
+  const lessonLearned = !params.isWon ? 25 : 0;
 
-  const baseTotal =
-    welcome +
-    objective +
-    healthyCrew +
-    pressureBonus +
-    threeStarBonus +
-    lessonLearned;
-
-  const total = Math.round(baseTotal * streakMultiplier);
+  const missionBase = objective + healthyCrew + timedBonus + threeStarBonus + lessonLearned;
+  const streakMultiplier = params.streakCount >= 3 ? 1.2 : 1.0;
+  const missionXp = Math.round(missionBase * streakMultiplier);
+  const total = welcome + missionXp;
 
   return {
     welcome,
     objective,
     healthyCrew,
-    pressureBonus,
+    timedBonus,
     threeStarBonus,
     lessonLearned,
     streakMultiplier,
+    missionXp,
     total,
   };
 }

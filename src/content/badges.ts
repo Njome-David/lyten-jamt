@@ -1,59 +1,64 @@
 // src/content/badges.ts
-// Badges and avatar rewards for junior astronaut progression.
-// Conforms to SPEC.md section 6.
+// Badge definitions and unlocking conditions.
+// Strictly follows SPEC.md section 6 and docs/fr/01-implementation.md section 7.2.
+
+export type BadgeId =
+  | 'steady-observer'
+  | 'flawless-pilot'
+  | 'space-veteran'
+  | 'ice-cold'
+  | 'complete-constellation';
 
 export interface BadgeDef {
-  id: string;
+  id: BadgeId;
   name: string;
-  conditionText: string;
-  avatarId: string;
   description: string;
-  icon: string;
+  unlockedAvatarId: string;
+  conditionDescription: string;
 }
 
-export const BADGES: readonly BadgeDef[] = [
-  {
+export const BADGES: Record<BadgeId, BadgeDef> = {
+  'steady-observer': {
     id: 'steady-observer',
     name: 'Steady Observer',
-    conditionText: 'Reach a 5-day mission training streak.',
-    avatarId: 'avatar-1',
-    description: 'Consistently logged in and trained 5 consecutive days.',
-    icon: '🔭',
+    description: 'Maintained a 5-day observation and mission streak.',
+    unlockedAvatarId: 'avatar-1',
+    conditionDescription: 'Reach a streak of 5 consecutive days',
   },
-  {
+  'flawless-pilot': {
     id: 'flawless-pilot',
     name: 'Flawless Pilot',
-    conditionText: 'Win 3 expeditions in a row without a loss.',
-    avatarId: 'avatar-2',
-    description: 'Executed 3 clean missions with 100% mission success.',
-    icon: '🚀',
+    description: 'Completed 3 consecutive missions with zero failures.',
+    unlockedAvatarId: 'avatar-2',
+    conditionDescription: 'Achieve 3 wins in a row without defeat',
   },
-  {
+  'space-veteran': {
     id: 'space-veteran',
     name: 'Space Veteran',
-    conditionText: 'Win 7 expeditions in a row.',
-    avatarId: 'avatar-3',
-    description: 'Demonstrated enduring endurance with 7 consecutive victories.',
-    icon: '🎖️',
+    description: 'Seasoned explorer with 7 consecutive mission victories.',
+    unlockedAvatarId: 'avatar-3',
+    conditionDescription: 'Win 7 consecutive missions (tier 2: 15)',
   },
-  {
+  'ice-cold': {
     id: 'ice-cold',
     name: 'Ice Cold',
-    conditionText: 'Resolve 10 timed alerts cleanly without timer expiry.',
-    avatarId: 'avatar-4',
-    description: 'Handled critical pressure decisions under stress with zero timeouts.',
-    icon: '❄️',
+    description: 'Master of high-pressure decisions under emergency alerts.',
+    unlockedAvatarId: 'avatar-4',
+    conditionDescription: 'Win 10 timed decisions without critical failure',
   },
-  {
+  'complete-constellation': {
     id: 'complete-constellation',
     name: 'Complete Constellation',
-    conditionText: 'Earn 3 stars on Easy, Medium, and Hard of the same mission.',
-    avatarId: 'avatar-5',
-    description: 'Mastered all difficulty levels of an expedition archetype.',
-    icon: '✨',
+    description: 'Mastered easy, medium, and hard modes of the same mission.',
+    unlockedAvatarId: 'avatar-5',
+    conditionDescription: 'Earn 3 stars in easy, medium, and hard on one mission',
   },
-] as const;
+};
 
-export function getBadge(id: string): BadgeDef | undefined {
-  return BADGES.find((b) => b.id === id);
-}
+export const ALL_BADGE_IDS: BadgeId[] = [
+  'steady-observer',
+  'flawless-pilot',
+  'space-veteran',
+  'ice-cold',
+  'complete-constellation',
+];

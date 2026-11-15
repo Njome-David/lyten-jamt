@@ -1,89 +1,109 @@
 // src/progress/streak.ts
-// Pure streak calculation with joker shield protection.
-// Conforms to SPEC.md section 6:
-// - Day-based (YYYY-MM-DD local)
-// - Joker shield: 1 automatic save of a missed day (diff === 2)
-// - Recharges after reaching a 7-day streak
+// Day-based streak tracking with automatic joker shield.
+// Follows SPEC.md section 6 and docs/fr/01-implementation.md section 7.2.
 
-import type { SaveStreak } from '../engine/types';
+import type { PlayerStreak } from './types';
 
-export function getLocalDayString(date: Date = new Date()): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+export const STREAK_XP_MULTIPLIER = 1.2;
+export const STREAK_BONUS_MIN_DAYS = 3;
+export const JOKER_RECHARGE_DAYS = 7;
+
+/**
+ * Calculates day difference between two YYYY-MM-DD date strings.
+ */
+export function getDaysDifference(dayA: string, dayB: string): number {
+  if (!dayA || !dayB) return 0;
+  const parseDate = (d: string) => {
+    const parts = d.split('-').map(Number);
+    const year = parts[0] ?? 2026;
+    const month = (parts[1] ?? 1) - 1;
+    const day = parts[2] ?? 1;
+    return new Date(Date.UTC(year, month, day)).getTime();
+  };
+  const msA = parseDate(dayA);
+  const msB = parseDate(dayB);
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.round((msB - msA) / msPerDay);
 }
 
-export function parseDayDifference(prevDay: string, today: string): number {
-  if (!prevDay || !today) return 999;
-  const [y1, m1, d1] = prevDay.split('-').map(Number);
-  const [y2, m2, d2] = today.split('-').map(Number);
-  if (!y1 || !m1 || !d1 || !y2 || !m2 || !d2) return 999;
-
-  const date1 = Date.UTC(y1, m1 - 1, d1);
-  const date2 = Date.UTC(y2, m2 - 1, d2);
-  const msDiff = date2 - date1;
-  return Math.round(msDiff / (24 * 60 * 60 * 1000));
+/**
+ * Returns whether a streak is eligible for the 1.2x mission XP bonus.
+ */
+export function hasStreakBonus(streakCount: number): boolean {
+  return streakCount >= STREAK_BONUS_MIN_DAYS;
 }
 
-export function updateStreak(
-  streak: SaveStreak,
-  today: string = getLocalDayString()
-): { streak: SaveStreak; usedJoker: boolean } {
-  if (!streak.lastDay || streak.count <= 0) {
+export interface StreakUpdateResult {
+  streak: PlayerStreak;
+  usedJoker: boolean;
+  streakReset: boolean;
+  isNewDay: boolean;
+}
+
+/**
+ * Updates player streak for a given local calendar day (YYYY-MM-DD).
+ *
+ * Rules:
+ * - Same day: no change.
+ * - Consecutive day (diff = 1): streak + 1.
+ * - Missed 1 day (diff = 2):
+ *   - If jokerReady is true: consume joker shield, save streak!
+ *   - If jokerReady is false: reset streak to 1.
+ * - Missed > 1 day (diff > 2): reset streak to 1.
+ * - Whenever streak reaches a 7-day milestone (>= 7), the joker recharges.
+ */
+export function recordDayActivity(
+  current: PlayerStreak,
+  today: string
+): StreakUpdateResult {
+  if (!current.lastDay) {
     return {
-      streak: {
-        count: 1,
-        lastDay: today,
-        jokerReady: streak.jokerReady ?? true,
-      },
+      streak: { count: 1, lastDay: today, jokerReady: false },
       usedJoker: false,
+      streakReset: false,
+      isNewDay: true,
     };
   }
 
-  const diff = parseDayDifference(streak.lastDay, today);
+  const diff = getDaysDifference(current.lastDay, today);
 
-  // Same day: return untouched
   if (diff <= 0) {
+    // Same day or clock skew: keep current
     return {
-      streak,
+      streak: { ...current },
       usedJoker: false,
+      streakReset: false,
+      isNewDay: false,
     };
   }
 
-  // Consecutive day
   if (diff === 1) {
-    const nextCount = streak.count + 1;
+    const nextCount = current.count + 1;
+    const jokerReady = nextCount >= JOKER_RECHARGE_DAYS ? true : current.jokerReady;
     return {
-      streak: {
-        count: nextCount,
-        lastDay: today,
-        jokerReady: nextCount >= 7 ? true : streak.jokerReady,
-      },
+      streak: { count: nextCount, lastDay: today, jokerReady },
       usedJoker: false,
+      streakReset: false,
+      isNewDay: true,
     };
   }
 
-  // Missed exactly 1 day (diff === 2) and joker shield is ready
-  if (diff === 2 && streak.jokerReady) {
-    const nextCount = streak.count + 1;
+  if (diff === 2 && current.jokerReady) {
+    // 1 missed day protected by joker
+    const nextCount = current.count + 1;
     return {
-      streak: {
-        count: nextCount,
-        lastDay: today,
-        jokerReady: false,
-      },
+      streak: { count: nextCount, lastDay: today, jokerReady: false },
       usedJoker: true,
+      streakReset: false,
+      isNewDay: true,
     };
   }
 
-  // Broken streak (more than 1 day missed or joker already spent)
+  // Missed days with no joker or > 1 missed day: reset to 1
   return {
-    streak: {
-      count: 1,
-      lastDay: today,
-      jokerReady: streak.jokerReady,
-    },
+    streak: { count: 1, lastDay: today, jokerReady: false },
     usedJoker: false,
+    streakReset: true,
+    isNewDay: true,
   };
 }

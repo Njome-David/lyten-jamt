@@ -1,349 +1,286 @@
 // src/progress/save.ts
-// Local storage management and mission progression recorder.
-// Conforms to SPEC.md section 6 and TECHNICAL.md.
+// Robust localStorage persistence and schema validation for jamt.save.v1.
+// Strictly follows SPEC.md section 6 and TASKS.md ### T19.
 
-import type {
-  RunScore,
-  RunState,
-  SaveProfile,
-  SaveSettings,
-  SaveV1,
-} from '../engine/types';
-import { evaluateBadges } from './badgesLogic';
-import { getLocalDayString, updateStreak } from './streak';
-import { calculateMissionXp } from './xp';
+import type { Difficulty } from '../engine/types';
+import type { SaveV1, GameSettings } from './types';
+import { evaluateNewBadges } from './badges';
+import { getRankForXp } from './ranks';
+import { calculateProgressionXp } from './xp';
+import { recordDayActivity } from './streak';
+import type { BadgeId } from '../content/badges';
 
-export const SAVE_KEY = 'jamt.save.v1';
-export const CORRUPT_BACKUP_KEY = 'jamt.save.corrupt';
+export const SAVE_STORAGE_KEY = 'jamt.save.v1';
 
-export interface LoadSaveResult {
-  save: SaveV1;
-  storageAvailable: boolean;
-  wasCorrupted: boolean;
-}
-
-export interface RecordMissionResult {
-  nextSave: SaveV1;
-  newlyUnlockedBadges: string[];
-  xpEarned: number;
-}
-
-export function defaultSave(): SaveV1 {
+/**
+ * Returns a clean, default initial save.
+ */
+export function createDefaultSave(): SaveV1 {
   return {
     v: 1,
-    profile: {
-      codename: 'Cmdr. Nova',
-      avatarId: 'avatar-1',
-    },
+    profile: { codename: 'Astronaut', avatarId: 'avatar-1' },
     xp: 0,
-    streak: {
-      count: 1,
-      lastDay: getLocalDayString(),
-      jokerReady: true,
-    },
+    streak: { count: 0, lastDay: '', jokerReady: false },
     badges: [],
     best: {},
-    stats: {
-      missionsPlayed: 0,
-      missionsWon: 0,
-      winStreak: 0,
-      pressureWinsClean: 0,
-      welcomeGiven: false,
-    },
+    stats: { winStreak: 0, pressureWinsClean: 0, welcomeGiven: false },
     seen: [],
-    settings: {
-      muted: false,
-      extraTime: false,
-      speed: 1,
-    },
+    settings: { muted: false, extraTime: false, speed: 1 },
   };
 }
 
-function isStorageAvailable(): boolean {
-  if (typeof window === 'undefined' || !window.localStorage) {
+/**
+ * Validates the shape of a loaded object to guarantee it satisfies SaveV1.
+ */
+export function isValidSave(data: unknown): data is SaveV1 {
+  if (!data || typeof data !== 'object') return false;
+  const s = data as Partial<SaveV1>;
+
+  if (s.v !== 1) return false;
+  if (!s.profile || typeof s.profile.codename !== 'string' || typeof s.profile.avatarId !== 'string') return false;
+  if (typeof s.xp !== 'number' || isNaN(s.xp) || s.xp < 0) return false;
+  if (
+    !s.streak ||
+    typeof s.streak.count !== 'number' ||
+    typeof s.streak.lastDay !== 'string' ||
+    typeof s.streak.jokerReady !== 'boolean'
+  ) {
     return false;
   }
-  try {
-    const probe = '__jamt_storage_test__';
-    window.localStorage.setItem(probe, '1');
-    window.localStorage.removeItem(probe);
-    return true;
-  } catch {
+  if (!Array.isArray(s.badges)) return false;
+  if (!s.best || typeof s.best !== 'object') return false;
+  if (
+    !s.stats ||
+    typeof s.stats.winStreak !== 'number' ||
+    typeof s.stats.pressureWinsClean !== 'number' ||
+    typeof s.stats.welcomeGiven !== 'boolean'
+  ) {
     return false;
+  }
+  if (!Array.isArray(s.seen)) return false;
+  if (
+    !s.settings ||
+    typeof s.settings.muted !== 'boolean' ||
+    typeof s.settings.extraTime !== 'boolean' ||
+    ![1, 2, 3].includes(s.settings.speed)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+// In-memory fallback for SSR or headless test environments without DOM localStorage
+let memoryStorage: Record<string, string> = {};
+
+export function clearMemoryStorage(): void {
+  memoryStorage = {};
+}
+
+function getStorageItem(key: string): string | null {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage.getItem(key);
+    }
+    return memoryStorage[key] ?? null;
+  } catch {
+    return memoryStorage[key] ?? null;
   }
 }
 
-export function loadSave(): LoadSaveResult {
-  if (!isStorageAvailable()) {
-    return {
-      save: defaultSave(),
-      storageAvailable: false,
-      wasCorrupted: false,
-    };
-  }
-
+function setStorageItem(key: string, value: string): void {
   try {
-    const raw = window.localStorage.getItem(SAVE_KEY);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(key, value);
+    }
+    memoryStorage[key] = value;
+  } catch {
+    memoryStorage[key] = value;
+  }
+}
+
+function removeStorageItem(key: string): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem(key);
+    }
+    delete memoryStorage[key];
+  } catch {
+    delete memoryStorage[key];
+  }
+}
+
+/**
+ * Loads and validates player save from localStorage (or fallback).
+ * If corrupted, unreadable, or missing, safely starts fresh without crashing.
+ */
+export function loadSave(): SaveV1 {
+  try {
+    const raw = getStorageItem(SAVE_STORAGE_KEY);
     if (!raw) {
-      return {
-        save: defaultSave(),
-        storageAvailable: true,
-        wasCorrupted: false,
-      };
+      return createDefaultSave();
     }
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      // JSON syntax error
-      window.localStorage.setItem(CORRUPT_BACKUP_KEY, raw);
-      const fallback = defaultSave();
-      writeSave(fallback);
-      return {
-        save: fallback,
-        storageAvailable: true,
-        wasCorrupted: true,
-      };
+    const parsed = JSON.parse(raw);
+    if (isValidSave(parsed)) {
+      return parsed;
     }
-
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      window.localStorage.setItem(CORRUPT_BACKUP_KEY, raw);
-      const fallback = defaultSave();
-      writeSave(fallback);
-      return {
-        save: fallback,
-        storageAvailable: true,
-        wasCorrupted: true,
-      };
-    }
-
-    const obj = parsed as Record<string, unknown>;
-
-    // Basic structural validation
-    if (typeof obj.xp !== 'number' || Number.isNaN(obj.xp) || obj.xp < 0) {
-      window.localStorage.setItem(CORRUPT_BACKUP_KEY, raw);
-      const fallback = defaultSave();
-      writeSave(fallback);
-      return {
-        save: fallback,
-        storageAvailable: true,
-        wasCorrupted: true,
-      };
-    }
-
-    const base = defaultSave();
-
-    // Deep merge with defaults to safeguard against missing optional fields
-    const validatedSave: SaveV1 = {
-      v: 1,
-      profile: {
-        codename:
-          typeof (obj.profile as Record<string, unknown>)?.codename === 'string'
-            ? String((obj.profile as Record<string, unknown>).codename)
-            : base.profile.codename,
-        avatarId:
-          typeof (obj.profile as Record<string, unknown>)?.avatarId === 'string'
-            ? String((obj.profile as Record<string, unknown>).avatarId)
-            : base.profile.avatarId,
-      },
-      xp: Math.floor(obj.xp),
-      streak: {
-        count:
-          typeof (obj.streak as Record<string, unknown>)?.count === 'number'
-            ? Math.max(1, Math.floor((obj.streak as Record<string, unknown>).count as number))
-            : base.streak.count,
-        lastDay:
-          typeof (obj.streak as Record<string, unknown>)?.lastDay === 'string'
-            ? String((obj.streak as Record<string, unknown>).lastDay)
-            : base.streak.lastDay,
-        jokerReady:
-          typeof (obj.streak as Record<string, unknown>)?.jokerReady === 'boolean'
-            ? Boolean((obj.streak as Record<string, unknown>).jokerReady)
-            : base.streak.jokerReady,
-      },
-      badges: Array.isArray(obj.badges)
-        ? obj.badges.filter((b): b is string => typeof b === 'string')
-        : base.badges,
-      best:
-        obj.best && typeof obj.best === 'object' && !Array.isArray(obj.best)
-          ? (obj.best as SaveV1['best'])
-          : base.best,
-      stats: {
-        missionsPlayed:
-          typeof (obj.stats as Record<string, unknown>)?.missionsPlayed === 'number'
-            ? Math.max(0, Math.floor((obj.stats as Record<string, unknown>).missionsPlayed as number))
-            : base.stats.missionsPlayed,
-        missionsWon:
-          typeof (obj.stats as Record<string, unknown>)?.missionsWon === 'number'
-            ? Math.max(0, Math.floor((obj.stats as Record<string, unknown>).missionsWon as number))
-            : base.stats.missionsWon,
-        winStreak:
-          typeof (obj.stats as Record<string, unknown>)?.winStreak === 'number'
-            ? Math.max(0, Math.floor((obj.stats as Record<string, unknown>).winStreak as number))
-            : base.stats.winStreak,
-        pressureWinsClean:
-          typeof (obj.stats as Record<string, unknown>)?.pressureWinsClean === 'number'
-            ? Math.max(0, Math.floor((obj.stats as Record<string, unknown>).pressureWinsClean as number))
-            : base.stats.pressureWinsClean,
-        welcomeGiven:
-          typeof (obj.stats as Record<string, unknown>)?.welcomeGiven === 'boolean'
-            ? Boolean((obj.stats as Record<string, unknown>).welcomeGiven)
-            : base.stats.welcomeGiven,
-      },
-      seen: Array.isArray(obj.seen)
-        ? obj.seen.filter((s): s is string => typeof s === 'string')
-        : base.seen,
-      settings: {
-        muted:
-          typeof (obj.settings as Record<string, unknown>)?.muted === 'boolean'
-            ? Boolean((obj.settings as Record<string, unknown>).muted)
-            : base.settings.muted,
-        extraTime:
-          typeof (obj.settings as Record<string, unknown>)?.extraTime === 'boolean'
-            ? Boolean((obj.settings as Record<string, unknown>).extraTime)
-            : base.settings.extraTime,
-        speed:
-          (obj.settings as Record<string, unknown>)?.speed === 1 ||
-          (obj.settings as Record<string, unknown>)?.speed === 2 ||
-          (obj.settings as Record<string, unknown>)?.speed === 3
-            ? ((obj.settings as Record<string, unknown>).speed as 1 | 2 | 3)
-            : base.settings.speed,
-      },
-    };
-
-    return {
-      save: validatedSave,
-      storageAvailable: true,
-      wasCorrupted: false,
-    };
+    // Corrupt or outdated shape: start fresh safely
+    return createDefaultSave();
   } catch {
-    return {
-      save: defaultSave(),
-      storageAvailable: true,
-      wasCorrupted: true,
-    };
+    // JSON parse error or access restriction: start fresh safely
+    return createDefaultSave();
   }
 }
 
-export function writeSave(save: SaveV1): boolean {
-  if (!isStorageAvailable()) {
-    return false;
-  }
+/**
+ * Saves player state to localStorage (or fallback).
+ */
+export function saveSave(save: SaveV1): boolean {
   try {
-    window.localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+    const serialized = JSON.stringify(save);
+    setStorageItem(SAVE_STORAGE_KEY, serialized);
     return true;
   } catch {
     return false;
   }
 }
 
-export function recordMissionResult(
-  prevSave: SaveV1,
-  run: RunState,
-  score: RunScore,
-  today: string = getLocalDayString()
-): RecordMissionResult {
-  const won = run.status === 'won';
-  const streakUpdate = updateStreak(prevSave.streak, today);
-
-  // Compute XP earned
-  const xpBreakdown = calculateMissionXp({
-    won,
-    health: run.meters.health,
-    pressureWins: run.pressureWins,
-    stars: score.stars,
-    streakDays: prevSave.streak.count,
-    welcomeGiven: prevSave.stats.welcomeGiven,
-  });
-  const xpEarned = xpBreakdown.total;
-
-  // Update best stars for mission key
-  const missionKey = `${run.body}-${run.missionId}`;
-  const previousMissionBest = prevSave.best[missionKey] ?? {};
-  const currentBestDifficultyStars = previousMissionBest[run.difficulty] ?? 0;
-  const nextStars = Math.max(currentBestDifficultyStars, score.stars) as 0 | 1 | 2 | 3;
-
-  const nextBest: SaveV1['best'] = {
-    ...prevSave.best,
-    [missionKey]: {
-      ...previousMissionBest,
-      [run.difficulty]: nextStars,
-    },
-  };
-
-  const winStreak = won ? prevSave.stats.winStreak + 1 : 0;
-  const pressureWinsClean =
-    run.pressureFails === 0
-      ? prevSave.stats.pressureWinsClean + run.pressureWins
-      : 0;
-
-  const candidateSave: SaveV1 = {
-    ...prevSave,
-    xp: prevSave.xp + xpEarned,
-    streak: streakUpdate.streak,
-    best: nextBest,
-    stats: {
-      missionsPlayed: prevSave.stats.missionsPlayed + 1,
-      missionsWon: prevSave.stats.missionsWon + (won ? 1 : 0),
-      winStreak,
-      pressureWinsClean,
-      welcomeGiven: true,
-    },
-  };
-
-  // Evaluate badges
-  const badgeResult = evaluateBadges(candidateSave);
-  candidateSave.badges = badgeResult.unlockedBadges;
-
-  // Persist if storage available
-  writeSave(candidateSave);
-
-  return {
-    nextSave: candidateSave,
-    newlyUnlockedBadges: badgeResult.newlyUnlockedBadges,
-    xpEarned,
-  };
+/**
+ * Resets the player save to factory default.
+ */
+export function resetSave(): SaveV1 {
+  const fresh = createDefaultSave();
+  removeStorageItem(SAVE_STORAGE_KEY);
+  return fresh;
 }
 
-export function markSeen(save: SaveV1, key: string): SaveV1 {
-  if (save.seen.includes(key)) {
-    return save;
-  }
-  const nextSave: SaveV1 = {
+/**
+ * Checks if a dialogue ID was already seen.
+ */
+export function hasSeen(save: SaveV1, dialogueId: string): boolean {
+  return save.seen.includes(dialogueId);
+}
+
+/**
+ * Marks a companion dialogue as seen and returns updated save.
+ */
+export function markSeen(save: SaveV1, dialogueId: string): SaveV1 {
+  if (hasSeen(save, dialogueId)) return save;
+  const updated: SaveV1 = {
     ...save,
-    seen: [...save.seen, key],
+    seen: [...save.seen, dialogueId],
   };
-  writeSave(nextSave);
-  return nextSave;
+  saveSave(updated);
+  return updated;
 }
 
-export function updateSettings(save: SaveV1, patch: Partial<SaveSettings>): SaveV1 {
-  const nextSave: SaveV1 = {
+/**
+ * Updates player settings (speed, muted, extraTime).
+ */
+export function updateSettings(save: SaveV1, patch: Partial<GameSettings>): SaveV1 {
+  const updated: SaveV1 = {
     ...save,
     settings: {
       ...save.settings,
       ...patch,
     },
   };
-  writeSave(nextSave);
-  return nextSave;
+  saveSave(updated);
+  return updated;
 }
 
-export function updateProfile(save: SaveV1, patch: Partial<SaveProfile>): SaveV1 {
-  const nextSave: SaveV1 = {
-    ...save,
-    profile: {
-      ...save.profile,
-      ...patch,
+export interface RecordMissionParams {
+  missionKey: string; // e.g. "moon-relay"
+  difficulty: Difficulty;
+  isWon: boolean;
+  stars: 0 | 1 | 2 | 3;
+  finalHealth: number;
+  timedDecisionsWon: number;
+  todayDate: string; // "YYYY-MM-DD"
+}
+
+export interface MissionProgressResult {
+  save: SaveV1;
+  newBadges: BadgeId[];
+  earnedXp: number;
+  rankUp: boolean;
+  previousRankTitle: string;
+  newRankTitle: string;
+}
+
+/**
+ * Integrates mission completion outcome into the save:
+ * calculates XP, updates streak, checks badges, and records best stars.
+ */
+export function recordMissionCompletion(
+  currentSave: SaveV1,
+  params: RecordMissionParams
+): MissionProgressResult {
+  const prevRank = getRankForXp(currentSave.xp);
+
+  // 1. Update streak
+  const streakUpdate = recordDayActivity(currentSave.streak, params.todayDate);
+
+  // 2. Calculate XP
+  const giveWelcome = !currentSave.stats.welcomeGiven;
+  const xpBreakdown = calculateProgressionXp({
+    isWon: params.isWon,
+    finalHealth: params.finalHealth,
+    timedDecisionsWon: params.timedDecisionsWon,
+    stars: params.stars,
+    giveWelcome,
+    streakCount: streakUpdate.streak.count,
+  });
+
+  const nextXp = currentSave.xp + xpBreakdown.total;
+
+  // 3. Update stats
+  const nextWinStreak = params.isWon ? currentSave.stats.winStreak + 1 : 0;
+  const nextPressureWinsClean = currentSave.stats.pressureWinsClean + params.timedDecisionsWon;
+
+  // 4. Update best stars
+  const missionRecords = { ...(currentSave.best[params.missionKey] ?? {}) };
+  const prevBestForDiff = missionRecords[params.difficulty] ?? 0;
+  if (params.stars > prevBestForDiff) {
+    missionRecords[params.difficulty] = params.stars;
+  }
+  const nextBest = {
+    ...currentSave.best,
+    [params.missionKey]: missionRecords,
+  };
+
+  const candidateSave: SaveV1 = {
+    ...currentSave,
+    xp: nextXp,
+    streak: streakUpdate.streak,
+    best: nextBest,
+    stats: {
+      winStreak: nextWinStreak,
+      pressureWinsClean: nextPressureWinsClean,
+      welcomeGiven: true,
     },
   };
-  writeSave(nextSave);
-  return nextSave;
-}
 
-export function resetSave(): SaveV1 {
-  const fresh = defaultSave();
-  writeSave(fresh);
-  return fresh;
+  // 5. Evaluate newly unlocked badges
+  const newBadges = evaluateNewBadges(candidateSave);
+  const finalBadges = Array.from(new Set([...candidateSave.badges, ...newBadges]));
+
+  const finalSave: SaveV1 = {
+    ...candidateSave,
+    badges: finalBadges,
+  };
+
+  saveSave(finalSave);
+
+  const nextRank = getRankForXp(finalSave.xp);
+  const rankUp = nextRank.id !== prevRank.id;
+
+  return {
+    save: finalSave,
+    newBadges,
+    earnedXp: xpBreakdown.total,
+    rankUp,
+    previousRankTitle: prevRank.title,
+    newRankTitle: nextRank.title,
+  };
 }

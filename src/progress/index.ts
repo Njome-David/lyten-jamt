@@ -1,9 +1,9 @@
 // src/progress/index.ts
-// Progression system barrel export.
-// Conforms to SPEC.md section 6.
+// Entry point for player progress, ranking, streaks, badges, and persistence.
 
-export * from './xp';
+export * from './types';
 export * from './ranks';
 export * from './streak';
-export * from './badgesLogic';
+export * from './xp';
+export * from './badges';
 export * from './save';
