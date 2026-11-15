@@ -21,6 +21,7 @@ import { createRun, resolveStep, previewOption, scoreRun } from '../engine';
 import { getSolarContext } from '../data/solar';
 import { MISSIONS } from '../content/missions';
 import type { OptionCostDeltas } from './components/OptionCard';
+import { useJudgeMode, JudgePanel, DEFAULT_DEMO_PRESET, buildForcedAlert } from '../judge';
 
 const INITIAL_LOADOUT: LoadoutConfig = {
   crew: 3,
@@ -149,9 +150,13 @@ export function GameShell() {
   }, []);
   const [state, dispatch] = useReducer(uiReducer, INITIAL_UI_STATE);
   const [isExecuting, setIsExecuting] = useState(false);
+  const judge = useJudgeMode();
 
-  // Real NASA DONKI solar weather context
-  const solarContext = useMemo(() => getSolarContext('recent'), []);
+  // Real NASA DONKI solar weather context (supports May 2024 historic storm)
+  const solarContext = useMemo(
+    () => getSolarContext(judge.state.solarMode),
+    [judge.state.solarMode]
+  );
 
   // Current mission definition and step
   const missionKey = `${state.destination}-${state.missionId}`;
@@ -200,6 +205,7 @@ export function GameShell() {
   }, [state.runState, currentStep, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext]);
 
   const handleLaunch = useCallback(() => {
+    const totalSteps = judge.state.shortRun ? 3 : 6;
     const run = createRun(
       {
         seed: 42,
@@ -208,18 +214,41 @@ export function GameShell() {
         siteId: state.site,
         difficulty: state.difficulty,
         loadout: state.loadout,
-        totalSteps: 6,
+        totalSteps,
       },
       solarContext
     );
     dispatch({ type: 'START_MISSION', runState: run });
-  }, [state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext]);
+  }, [judge.state.shortRun, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext]);
+
+  const handlePlayDemo = useCallback(() => {
+    const totalSteps = judge.state.shortRun ? 3 : 6;
+    const run = createRun(
+      {
+        seed: DEFAULT_DEMO_PRESET.seed,
+        body: DEFAULT_DEMO_PRESET.destination,
+        missionId: DEFAULT_DEMO_PRESET.missionId,
+        siteId: DEFAULT_DEMO_PRESET.site,
+        difficulty: DEFAULT_DEMO_PRESET.difficulty,
+        loadout: DEFAULT_DEMO_PRESET.loadout,
+        totalSteps,
+      },
+      solarContext
+    );
+    dispatch({ type: 'SELECT_DESTINATION', destination: DEFAULT_DEMO_PRESET.destination });
+    dispatch({ type: 'SELECT_SITE', site: DEFAULT_DEMO_PRESET.site });
+    dispatch({ type: 'SELECT_MISSION', missionId: DEFAULT_DEMO_PRESET.missionId });
+    dispatch({ type: 'SELECT_DIFFICULTY', difficulty: DEFAULT_DEMO_PRESET.difficulty });
+    dispatch({ type: 'UPDATE_LOADOUT', patch: DEFAULT_DEMO_PRESET.loadout });
+    dispatch({ type: 'START_MISSION', runState: run });
+  }, [judge.state.shortRun, solarContext]);
 
   const handleAction = useCallback(
     (style: OptionStyle) => {
       if (isExecuting) return;
       setIsExecuting(true);
 
+      const totalSteps = judge.state.shortRun ? 3 : 6;
       const activeRun =
         state.runState ??
         createRun(
@@ -230,12 +259,19 @@ export function GameShell() {
             siteId: state.site,
             difficulty: state.difficulty,
             loadout: state.loadout,
-            totalSteps: 6,
+            totalSteps,
           },
           solarContext
         );
 
-      const res = resolveStep(activeRun, { type: 'CHOOSE_OPTION', style }, solarContext);
+      let res = resolveStep(activeRun, { type: 'CHOOSE_OPTION', style }, solarContext);
+
+      // Trigger forced event if judge selected one
+      if (judge.state.forcedEvent) {
+        const forcedAlert = buildForcedAlert(judge.state.forcedEvent, solarContext, state.difficulty);
+        res = { ...res, alert: forcedAlert };
+        judge.setForcedEvent(null);
+      }
       const archetype = currentStep?.archetype ?? 'travel';
 
       dispatch({
@@ -259,7 +295,7 @@ export function GameShell() {
         },
       });
     },
-    [isExecuting, state.runState, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext, currentStep]
+    [isExecuting, state.runState, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext, currentStep, judge]
   );
 
   const handleAlertChoice = useCallback(
@@ -284,6 +320,13 @@ export function GameShell() {
       }
 
       const key = e.key.toLowerCase();
+
+      // Judge mode toggle shortcut [J]
+      if (key === 'j') {
+        e.preventDefault();
+        judge.toggleEnabled();
+        return;
+      }
 
       // Pause toggle works from mission screen or overlay
       if (state.screen === 'mission' && (key === 'p' || key === 'm')) {
@@ -403,7 +446,7 @@ export function GameShell() {
           break;
       }
     },
-    [state, isDialogActive, handleLaunch, handleAction]
+    [state, isDialogActive, handleLaunch, handleAction, judge]
   );
 
   useEffect(() => {
@@ -447,7 +490,11 @@ export function GameShell() {
         }}
       >
         {state.screen === 'title' && (
-          <Title onStart={() => dispatch({ type: 'NAVIGATE', screen: 'destination' })} />
+          <Title
+            onStart={() => dispatch({ type: 'NAVIGATE', screen: 'destination' })}
+            onToggleJudge={judge.toggleEnabled}
+            isJudgeEnabled={judge.state.enabled}
+          />
         )}
 
         {state.screen === 'destination' && (
@@ -526,6 +573,19 @@ export function GameShell() {
       {state.paused && (
         <PauseOverlay onResume={() => dispatch({ type: 'TOGGLE_PAUSE' })} />
       )}
+
+      {/* Space Apps Judge Mode Inspection Bar */}
+      <JudgePanel
+        state={judge.state}
+        onPlayDemo={handlePlayDemo}
+        onToggleCollapse={judge.toggleCollapsed}
+        onSetShortRun={judge.setShortRun}
+        onSetSolarMode={judge.setSolarMode}
+        onSetSpeed={judge.setSpeed}
+        onSetForcedEvent={judge.setForcedEvent}
+        onSetIsScienceMapOpen={judge.setIsScienceMapOpen}
+        onSetDemoProfileActive={judge.setDemoProfileActive}
+      />
     </div>
   );
 }
