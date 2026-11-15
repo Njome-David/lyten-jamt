@@ -4,9 +4,11 @@ import React from 'react';
 
 interface TitleProps {
   onStart: () => void;
+  onToggleJudge?: () => void;
+  isJudgeEnabled?: boolean;
 }
 
-export function Title({ onStart }: TitleProps) {
+export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
   return (
     <div
       data-testid="screen-title"
@@ -88,12 +90,38 @@ export function Title({ onStart }: TitleProps) {
             justifyContent: 'center',
             gap: '10px',
             boxShadow: '0 4px 16px rgba(255, 210, 74, 0.35)',
+            marginBottom: '14px',
           }}
         >
           <span aria-hidden="true">🚀</span>
           <span>Start Mission</span>
           <span style={{ fontSize: '13px', opacity: 0.75, marginLeft: '6px' }}>(Space / 1)</span>
         </button>
+
+        {onToggleJudge && (
+          <button
+            type="button"
+            data-testid="btn-title-judge-mode"
+            onClick={onToggleJudge}
+            style={{
+              width: '100%',
+              minHeight: '44px',
+              fontSize: '13px',
+              fontWeight: 700,
+              background: isJudgeEnabled ? 'rgba(255, 210, 74, 0.15)' : 'transparent',
+              border: isJudgeEnabled ? '1px solid var(--power)' : '1px solid var(--border)',
+              color: isJudgeEnabled ? 'var(--power)' : 'var(--ink-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+            }}
+          >
+            <span>⚖️</span>
+            <span>{isJudgeEnabled ? 'Judge Mode Active' : 'Space Apps Judge Mode [J]'}</span>
+          </button>
+        )}
       </div>
     </div>
   );
