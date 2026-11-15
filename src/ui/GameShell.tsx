@@ -3,7 +3,9 @@
 import React, { useReducer, useEffect, useCallback } from 'react';
 import type { UIState, UIAction, Body, SiteId, MissionTemplateId, Difficulty, LoadoutConfig } from './types';
 import { Stage2D } from './components/Stage2D';
+import DialogBox from './dialog/DialogBox';
 import { PauseOverlay } from './components/PauseOverlay';
+import { useDialogRunner } from './dialog/useDialogRunner';
 import {
   Title,
   Destination,
@@ -81,6 +83,19 @@ export function uiReducer(state: UIState, action: UIAction): UIState {
 }
 
 export function GameShell() {
+  const {
+    currentDialog,
+    startGuidedTour,
+    advanceDialog,
+    skipDialog,
+    isDialogActive,
+  } = useDialogRunner();
+
+  // Start guided tour on initial launch
+  useEffect(() => {
+    startGuidedTour();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [state, dispatch] = useReducer(uiReducer, INITIAL_UI_STATE);
 
   // Calculate mock meters based on step progress
@@ -93,8 +108,8 @@ export function GameShell() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+      // Ignore if user is typing in an input or a dialogue is active
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName) || isDialogActive) {
         return;
       }
 
@@ -212,7 +227,7 @@ export function GameShell() {
           break;
       }
     },
-    [state]
+    [state, isDialogActive]
   );
 
   useEffect(() => {
@@ -310,6 +325,13 @@ export function GameShell() {
       </main>
 
       {/* Paused Modal Dialog */}
+      {isDialogActive && currentDialog && (
+        <DialogBox
+          dialogue={currentDialog}
+          onNext={advanceDialog}
+          onSkip={skipDialog}
+        />
+      )}
       {state.paused && (
         <PauseOverlay onResume={() => dispatch({ type: 'TOGGLE_PAUSE' })} />
       )}
