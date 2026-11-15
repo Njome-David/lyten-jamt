@@ -1,5 +1,6 @@
 import type { Body, SiteId } from '../../engine/types';
 import type { QualityLevel } from './quality';
+import type { CinematicProps } from '../cinematics/types';
 
 export type StageMode = 'title' | 'destination' | 'sites' | 'loadout' | 'mission' | 'debrief';
 export type CelestialBody = Body;
@@ -16,6 +17,7 @@ export interface StageProps {
   body?: CelestialBody;
   site?: SiteId;
   quality?: QualityLevel;
+  cinematic?: CinematicProps;
   onSelectBody?: (body: CelestialBody) => void;
   onSelectSite?: (site: SiteId) => void;
 }
