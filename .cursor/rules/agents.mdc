@@ -1,0 +1,5 @@
+---
+description: Regles du depot (obligatoires)
+alwaysApply: true
+---
+Lis AGENTS.md (racine) en entier, puis SKILLS.md, SPEC.md et docs/spec/*.md avant toute action. Mets a jour CONTEXT.md (local, non commite) pendant le travail.

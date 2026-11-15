@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "source": "NASA CCMC DONKI (Solar Flare Catalog)",
+    "url": "https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR?startDate=2026-10-17&endDate=2026-11-14",
+    "fetchedAt": "2026-11-14T19:36:11.272Z",
+    "isLive": false,
+    "credit": "NASA Community Coordinated Modeling Center (CCMC)",
+    "note": "28-day window (2026-10-17 to 2026-11-14)"
+  },
+  "data": [
+    {
+      "id": "2026-10-19T08:54:00-FLR-001",
+      "classType": "M1.6",
+      "peakTime": "2026-10-19T09:03Z",
+      "activeRegionNum": 14551,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49165/-1"
+    },
+    {
+      "id": "2026-10-23T03:43:00-FLR-001",
+      "classType": "C1.3",
+      "peakTime": "2026-10-23T03:55Z",
+      "activeRegionNum": 14557,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49214/-1"
+    },
+    {
+      "id": "2026-10-26T08:21:00-FLR-001",
+      "classType": "C1.9",
+      "peakTime": "2026-10-26T08:38Z",
+      "activeRegionNum": 14561,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49256/-1"
+    },
+    {
+      "id": "2026-10-26T18:17:00-FLR-001",
+      "classType": "C2.8",
+      "peakTime": "2026-10-26T18:40Z",
+      "activeRegionNum": 14561,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49278/-1"
+    },
+    {
+      "id": "2026-11-05T18:21:00-FLR-001",
+      "classType": "M3.5",
+      "peakTime": "2026-11-05T18:33Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49391/-1"
+    },
+    {
+      "id": "2026-11-07T12:26:00-FLR-001",
+      "classType": "M1.2",
+      "peakTime": "2026-11-07T12:43Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49433/-1"
+    },
+    {
+      "id": "2026-11-07T17:11:00-FLR-001",
+      "classType": "M1.4",
+      "peakTime": "2026-11-07T17:17Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49442/-1"
+    },
+    {
+      "id": "2026-11-07T18:21:00-FLR-001",
+      "classType": "M1.9",
+      "peakTime": "2026-11-07T18:42Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49448/-1"
+    },
+    {
+      "id": "2026-11-08T07:33:00-FLR-001",
+      "classType": "M1.7",
+      "peakTime": "2026-11-08T07:46Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49453/-1"
+    },
+    {
+      "id": "2026-11-08T15:29:00-FLR-001",
+      "classType": "M1.1",
+      "peakTime": "2026-11-08T15:37Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49456/-1"
+    },
+    {
+      "id": "2026-11-08T18:15:00-FLR-001",
+      "classType": "M1.1",
+      "peakTime": "2026-11-08T18:27Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49461/-1"
+    },
+    {
+      "id": "2026-11-11T21:06:00-FLR-001",
+      "classType": "M1.7",
+      "peakTime": "2026-11-11T21:21Z",
+      "activeRegionNum": 14566,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49504/-1"
+    }
+  ]
+}

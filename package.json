@@ -1,0 +1,51 @@
+{
+  "name": "lyten-jamt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Junior Astronaut Mission Trainer - NASA Space Apps 2026 (Team LYTEN)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run data:verify",
+    "verify:release": "npm run typecheck && npm run lint && npm test && npm run data:verify:strict",
+    "data:probe": "tsx scripts/probe-apis.ts",
+    "data:fetch": "tsx scripts/fetch-nasa-data.ts",
+    "data:verify": "tsx scripts/verify-data.ts",
+    "data:verify:strict": "tsx scripts/verify-data.ts --strict",
+    "bots": "tsx scripts/run-bots.ts",
+    "setup": "bash scripts/setup.sh",
+    "task": "bash scripts/task.sh",
+    "handoff": "bash scripts/handoff.sh",
+    "docs:pdf": "bash scripts/build-docs-pdf.sh",
+    "next": "bash scripts/next-task.sh"
+  },
+  "dependencies": {
+    "next": "15.5.29",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "three": "0.170.0",
+    "@react-three/fiber": "9.8.2",
+    "@react-three/drei": "10.7.9"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@next/eslint-plugin-next": "15.5.29",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.170.0",
+    "eslint": "9.39.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2",
+    "vitest": "3.2.7"
+  }
+}

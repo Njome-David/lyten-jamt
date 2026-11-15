@@ -1,0 +1,29 @@
+# dependances et builds
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# environnement et secrets (ne jamais committer de cle)
+.env
+.env.*
+!.env.example
+
+# CONTEXT.md = memoire locale de chaque dev avec son agent. JAMAIS suivi par git.
+CONTEXT.md
+
+# brouillons d'agents et editeurs
+.agent-scratch/
+*.orig
+*.rej
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+jamt-figma/
+
+# deploiement
+.vercel/

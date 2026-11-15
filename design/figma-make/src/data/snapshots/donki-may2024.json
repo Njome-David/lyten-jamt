@@ -1,0 +1,313 @@
+{
+  "meta": {
+    "source": "NASA CCMC DONKI (May 2024 Geomagnetic Superstorm)",
+    "url": "https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR?startDate=2024-05-01&endDate=2024-05-30",
+    "fetchedAt": "2026-11-14T19:36:11.272Z",
+    "isLive": false,
+    "credit": "NASA Community Coordinated Modeling Center (CCMC)",
+    "note": "May 2024 solar storm archive (2024-05-01 to 2024-05-31, split per 30-day API rule)"
+  },
+  "data": [
+    {
+      "id": "2024-05-01T14:17:00-FLR-001",
+      "classType": "M1.8",
+      "peakTime": "2024-05-01T14:32Z",
+      "activeRegionNum": 13654,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30361/-1"
+    },
+    {
+      "id": "2024-05-01T14:37:00-FLR-001",
+      "classType": "M1.9",
+      "peakTime": "2024-05-01T14:44Z",
+      "activeRegionNum": 13654,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30394/-1"
+    },
+    {
+      "id": "2024-05-01T22:26:00-FLR-001",
+      "classType": "M1.8",
+      "peakTime": "2024-05-01T22:31Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30378/-1"
+    },
+    {
+      "id": "2024-05-02T02:07:00-FLR-001",
+      "classType": "M1.0",
+      "peakTime": "2024-05-02T02:17Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30379/-1"
+    },
+    {
+      "id": "2024-05-02T20:52:00-FLR-001",
+      "classType": "M2.7",
+      "peakTime": "2024-05-02T20:57Z",
+      "activeRegionNum": 13664,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30406/-1"
+    },
+    {
+      "id": "2024-05-03T00:08:00-FLR-001",
+      "classType": "M2.7",
+      "peakTime": "2024-05-03T00:15Z",
+      "activeRegionNum": 13664,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30407/-1"
+    },
+    {
+      "id": "2024-05-03T02:11:00-FLR-001",
+      "classType": "X1.6",
+      "peakTime": "2024-05-03T02:22Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30403/-1"
+    },
+    {
+      "id": "2024-05-03T08:05:00-FLR-001",
+      "classType": "M4.4",
+      "peakTime": "2024-05-03T08:11Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30408/-1"
+    },
+    {
+      "id": "2024-05-03T22:25:00-FLR-001",
+      "classType": "M1.2",
+      "peakTime": "2024-05-03T22:47Z",
+      "activeRegionNum": 13654,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30431/-1"
+    },
+    {
+      "id": "2024-05-03T23:11:00-FLR-001",
+      "classType": "M1.0",
+      "peakTime": "2024-05-03T23:16Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30430/-1"
+    },
+    {
+      "id": "2024-05-03T23:24:00-FLR-001",
+      "classType": "M2.4",
+      "peakTime": "2024-05-03T23:30Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30429/-1"
+    },
+    {
+      "id": "2024-05-04T00:26:00-FLR-001",
+      "classType": "M1.6",
+      "peakTime": "2024-05-04T00:36Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30428/-1"
+    },
+    {
+      "id": "2024-05-04T06:02:00-FLR-001",
+      "classType": "M9.1",
+      "peakTime": "2024-05-04T06:19Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30424/-1"
+    },
+    {
+      "id": "2024-05-04T07:04:00-FLR-001",
+      "classType": "M1.5",
+      "peakTime": "2024-05-04T07:07Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30427/-1"
+    },
+    {
+      "id": "2024-05-04T18:10:00-FLR-001",
+      "classType": "M1.3",
+      "peakTime": "2024-05-04T18:20Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30432/-1"
+    },
+    {
+      "id": "2024-05-04T22:23:00-FLR-001",
+      "classType": "M3.2",
+      "peakTime": "2024-05-04T22:37Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30456/-1"
+    },
+    {
+      "id": "2024-05-04T23:28:00-FLR-001",
+      "classType": "M9.0",
+      "peakTime": "2024-05-04T23:48Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30450/-1"
+    },
+    {
+      "id": "2024-05-05T01:15:00-FLR-001",
+      "classType": "M8.4",
+      "peakTime": "2024-05-05T01:27Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30452/-1"
+    },
+    {
+      "id": "2024-05-05T05:47:00-FLR-001",
+      "classType": "X1.3",
+      "peakTime": "2024-05-05T06:01Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30457/-1"
+    },
+    {
+      "id": "2024-05-05T08:07:00-FLR-001",
+      "classType": "M1.3",
+      "peakTime": "2024-05-05T08:19Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30466/-1"
+    },
+    {
+      "id": "2024-05-05T09:23:00-FLR-001",
+      "classType": "M2.3",
+      "peakTime": "2024-05-05T09:38Z",
+      "activeRegionNum": 13664,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30467/-1"
+    },
+    {
+      "id": "2024-05-05T09:53:00-FLR-001",
+      "classType": "M7.4",
+      "peakTime": "2024-05-05T10:00Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30459/-1"
+    },
+    {
+      "id": "2024-05-05T11:41:00-FLR-001",
+      "classType": "X1.2",
+      "peakTime": "2024-05-05T11:54Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30461/-1"
+    },
+    {
+      "id": "2024-05-05T14:33:00-FLR-001",
+      "classType": "M1.3",
+      "peakTime": "2024-05-05T14:47Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30468/-1"
+    },
+    {
+      "id": "2024-05-05T15:28:00-FLR-001",
+      "classType": "M2.2",
+      "peakTime": "2024-05-05T15:38Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30469/-1"
+    },
+    {
+      "id": "2024-05-05T16:55:00-FLR-001",
+      "classType": "M1.3",
+      "peakTime": "2024-05-05T17:01Z",
+      "activeRegionNum": 13664,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30470/-1"
+    },
+    {
+      "id": "2024-05-05T18:34:00-FLR-001",
+      "classType": "M1.0",
+      "peakTime": "2024-05-05T18:40Z",
+      "activeRegionNum": 13664,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30482/-1"
+    },
+    {
+      "id": "2024-05-05T19:44:00-FLR-001",
+      "classType": "M1.3",
+      "peakTime": "2024-05-05T19:52Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30483/-1"
+    },
+    {
+      "id": "2024-05-06T00:47:00-FLR-001",
+      "classType": "M1.6",
+      "peakTime": "2024-05-06T01:06Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30486/-1"
+    },
+    {
+      "id": "2024-05-06T05:09:00-FLR-001",
+      "classType": "M1.3",
+      "peakTime": "2024-05-06T05:28Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30487/-1"
+    },
+    {
+      "id": "2024-05-06T05:38:00-FLR-001",
+      "classType": "X4.5",
+      "peakTime": "2024-05-06T06:35Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30484/-1"
+    },
+    {
+      "id": "2024-05-06T09:49:00-FLR-001",
+      "classType": "M1.5",
+      "peakTime": "2024-05-06T09:59Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30488/-1"
+    },
+    {
+      "id": "2024-05-06T21:37:00-FLR-001",
+      "classType": "M1.2",
+      "peakTime": "2024-05-06T21:48Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30513/-1"
+    },
+    {
+      "id": "2024-05-06T21:58:00-FLR-001",
+      "classType": "M4.3",
+      "peakTime": "2024-05-06T22:27Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30514/-1"
+    },
+    {
+      "id": "2024-05-07T00:41:00-FLR-001",
+      "classType": "M2.6",
+      "peakTime": "2024-05-07T00:58Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30515/-1"
+    },
+    {
+      "id": "2024-05-07T05:58:00-FLR-001",
+      "classType": "M5.1",
+      "peakTime": "2024-05-07T06:16Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30498/-1"
+    },
+    {
+      "id": "2024-05-07T08:18:00-FLR-001",
+      "classType": "M1.3",
+      "peakTime": "2024-05-07T08:23Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30520/-1"
+    },
+    {
+      "id": "2024-05-07T08:28:00-FLR-001",
+      "classType": "M1.4",
+      "peakTime": "2024-05-07T08:31Z",
+      "activeRegionNum": 13668,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30521/-1"
+    },
+    {
+      "id": "2024-05-01T05:53:00-FLR-001",
+      "classType": "C5.3",
+      "peakTime": "2024-05-01T06:57Z",
+      "activeRegionNum": 13657,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/36921/-1"
+    },
+    {
+      "id": "2024-05-05T03:01:00-FLR-001",
+      "classType": "C8.8",
+      "peakTime": "2024-05-05T03:17Z",
+      "activeRegionNum": 13663,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30480/-1"
+    },
+    {
+      "id": "2024-05-14T04:05:00-FLR-001",
+      "classType": "C6.5",
+      "peakTime": "2024-05-14T04:08Z",
+      "activeRegionNum": 13679,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30839/-1"
+    },
+    {
+      "id": "2024-05-21T07:20:00-FLR-001",
+      "classType": "C4.8",
+      "peakTime": "2024-05-21T07:32Z",
+      "activeRegionNum": 13683,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/36905/-1"
+    },
+    {
+      "id": "2024-05-21T14:00:00-FLR-001",
+      "classType": "C6.6",
+      "peakTime": "2024-05-21T14:13Z",
+      "activeRegionNum": 13683,
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/31074/-1"
+    }
+  ]
+}

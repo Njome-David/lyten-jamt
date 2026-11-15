@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Conventional Commits en anglais: type(scope): message
+msg=$(head -1 "$1")
+re='^(feat|fix|docs|test|refactor|chore|perf|style|build|ci|revert)(\([a-z0-9-]+\))?!?: .{3,}$'
+if [[ "$msg" =~ ^Merge ]] || [[ "$msg" =~ ^Revert ]]; then exit 0; fi
+if ! [[ "$msg" =~ $re ]]; then
+  echo "Message de commit invalide: '$msg'"
+  echo "Format: type(scope): message   ex: feat(engine): add dust storm event"
+  exit 1
+fi

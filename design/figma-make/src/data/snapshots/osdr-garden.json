@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "source": "NASA Open Science Data Repository (OSDR)",
+    "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-745",
+    "fetchedAt": "2026-11-14T19:36:11.272Z",
+    "isLive": false,
+    "credit": "NASA GeneLab / Open Science Data Repository"
+  },
+  "data": {
+    "id": "OSD-745",
+    "title": "Microbiological and Nutritional Analysis of Lettuce Crops Grown on the International Space Station (Anthocyanin Content, Phenolic Content, Elemental Analysis, ORAC)",
+    "organism": "Lactuca sativa",
+    "factors": ["Spaceflight", "Payload"],
+    "studyUrl": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-745"
+  }
+}

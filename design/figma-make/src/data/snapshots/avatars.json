@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "source": "NASA Image and Video Library",
+    "url": "https://images.nasa.gov/",
+    "fetchedAt": "2026-11-14T19:36:11.272Z",
+    "isLive": false,
+    "credit": "NASA Image and Video Library"
+  },
+  "data": [
+    {
+      "id": "default",
+      "badgeId": null,
+      "label": "Lunar Explorer",
+      "nasaId": "as11-40-5902",
+      "title": "Astronaut Edwin Aldrin walks on lunar surface near leg of Lunar Module",
+      "description": "AS11-40-5902 (20 July 1969) --- Astronaut Edwin E. Aldrin Jr., lunar module pilot, walks on the surface of the moon near a leg of the Lunar Module during the Apollo 11 extravehicular activity (EVA). Astronaut Neil A. Arm",
+      "credit": "JSC",
+      "localSrc": "/avatars/avatar-default.jpg",
+      "sourceUrl": "https://images.nasa.gov/details/as11-40-5902"
+    },
+    {
+      "id": "steady-observer",
+      "badgeId": "steady-observer",
+      "label": "EVA Spacewalker",
+      "nasaId": "iss010e20747",
+      "title": "Chiao holds EVA holds tool caddy in the SM during Expedition 10",
+      "description": "ISS010-E-20747 (21 March 2005) --- Astronaut Leroy Chiao, Expedition 10 commander and NASA ISS science officer, works with a tool caddy containing extravehicular activities (EVA) equipment and tools in the Zvezda Service",
+      "credit": "JSC",
+      "localSrc": "/avatars/avatar-steady-observer.jpg",
+      "sourceUrl": "https://images.nasa.gov/details/iss010e20747"
+    },
+    {
+      "id": "flawless-pilot",
+      "badgeId": "flawless-pilot",
+      "label": "Orion Crew Explorer",
+      "nasaId": "art002e009567",
+      "title": "Orion POV: Destination and Home",
+      "description": "art002e009567 (April 6, 2026) - NASA’s Orion spacecraft captures the Moon and the Earth in one frame during the Artemis II crew’s deep space journey at 6:42 p.m. ET on the sixth day of the mission. The right side of NASA",
+      "credit": "NASA",
+      "localSrc": "/avatars/avatar-flawless-pilot.jpg",
+      "sourceUrl": "https://images.nasa.gov/details/art002e009567"
+    },
+    {
+      "id": "space-veteran",
+      "badgeId": "space-veteran",
+      "label": "Mars Rover Specialist",
+      "nasaId": "PIA24343",
+      "title": "Perseverance Rover on Mars (Illustration)",
+      "description": "This illustration shows NASA's Mars Perseverance rover on the surface of the Red Planet. Perseverance will search for signs of ancient microbial life. It will also characterize the planet's climate and geology, collect s",
+      "credit": "NASA/JPL-Caltech",
+      "localSrc": "/avatars/avatar-space-veteran.jpg",
+      "sourceUrl": "https://images.nasa.gov/details/PIA24343"
+    },
+    {
+      "id": "ice-cold",
+      "badgeId": "ice-cold",
+      "label": "Flight Controller",
+      "nasaId": "s65-45280",
+      "title": "Overall view of Mission Control Center, Houston, Tx during Gemini 5",
+      "description": "S65-45280 (21-29 Aug. 1965) --- Overall view of the Mission Control Center (MCC), Houston, Texas, during the Gemini-5 flight. Note the screen at the front of the MCC which is used to track the progress of the Gemini spac",
+      "credit": "JSC",
+      "localSrc": "/avatars/avatar-ice-cold.jpg",
+      "sourceUrl": "https://images.nasa.gov/details/s65-45280"
+    },
+    {
+      "id": "complete-constellation",
+      "badgeId": "complete-constellation",
+      "label": "Lunar Horizon",
+      "nasaId": "art002e021278",
+      "title": "A Breathtaking Earthset from Orion",
+      "description": "art002e021278 (April 6, 2026) – Echoing the iconic Earthrise photo captured by the Apollo 8 astronauts in 1968, during the lunar flyby, the Artemis II crew captured a shot of Earthset as they passed behind the Moon’s far",
+      "credit": "NASA",
+      "localSrc": "/avatars/avatar-complete-constellation.jpg",
+      "sourceUrl": "https://images.nasa.gov/details/art002e021278"
+    }
+  ]
+}

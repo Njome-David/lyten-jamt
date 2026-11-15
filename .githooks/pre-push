@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+branch=$(git branch --show-current)
+if [ "$branch" = "main" ]; then echo "Push direct sur main interdit. Utilisez une branche tNN-slug + PR."; exit 1; fi
+if [ "${SKIP_VERIFY:-0}" = "1" ]; then echo "SKIP_VERIFY=1: verification ignoree (a eviter)."; exit 0; fi
+npm run verify

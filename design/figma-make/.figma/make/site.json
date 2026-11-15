@@ -1,0 +1,11 @@
+{
+  "title": "lyten-jamt",
+  "description": "Explore and choose clear guiding lines to direct AI responses, helping users shape prompts around their goals and preferred outcomes.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
