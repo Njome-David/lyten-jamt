@@ -1,18 +1,112 @@
-/* Design tokens: voir docs/spec/PRESENTATION.md (regles d'interface). Aucune police externe. */
+/* Design tokens: voir docs/spec/DESIGN.md et docs/spec/PRESENTATION.md. Aucune police externe. */
 :root {
-  --bg: #05070d;
-  --ink: #eaf1ff;
-  --ink-dim: #9fb0cf;
-  --power: #ffd24a;
-  --air: #4fd8ff;
-  --health: #ff6b8b;
-  --food: #8be28b;
-  --alert: #ff5b3a;
-  --radius: 14px;
+  /* Surfaces & fonds cosmiques */
+  --bg: #070c18;
+  --bg-deep: #05070d;
+  --surface-panel: rgba(12, 20, 39, 0.88);
+  --border-panel: rgba(148, 163, 184, 0.20);
+  --surface-subpanel: rgba(15, 23, 42, 0.72);
+  --border-subpanel: rgba(148, 163, 184, 0.14);
+  --panel-gradient: linear-gradient(180deg, rgba(19, 30, 56, 0.92) 0%, rgba(12, 20, 39, 0.95) 100%);
+  --shadow-panel: 0 14px 34px -14px rgba(2, 6, 23, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+
+  /* Typographie & niveaux d'encre */
+  --ink: #f1f5f9;
+  --ink-dim: #94a3b8;
+  --ink-muted: #64748b;
+  --ink-inverse: #020617;
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Échelle typographique (adaptée enfants 7-12 ans) */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 18px;
+  --text-title: 28px;
+  --text-display: 36px;
+
+  /* Jauges de survie (Meters - contrat canonique PRESENTATION.md) */
+  --power: #ffd24a;
+  --power-bg: rgba(255, 210, 74, 0.16);
+  --air: #4fd8ff;
+  --air-bg: rgba(79, 216, 255, 0.16);
+  --health: #ff6b8b;
+  --health-bg: rgba(255, 107, 139, 0.16);
+  --food: #8be28b;
+  --food-bg: rgba(139, 226, 139, 0.16);
+  --meter-critical: #ff5b3a;
+  --meter-critical-bg: rgba(255, 91, 58, 0.20);
+
+  /* Alertes & statuts */
+  --alert: #ff5b3a;
+  --alert-border: rgba(255, 91, 58, 0.65);
+  --alert-bg: rgba(255, 91, 58, 0.15);
+  --warning: #ffd24a;
+  --success: #8be28b;
+
+  /* Corps célestes & accents */
+  --accent-moon: #4fd8ff;
+  --accent-moon-bg: rgba(79, 216, 255, 0.16);
+  --accent-mars: #ff8a4c;
+  --accent-mars-bg: rgba(255, 138, 76, 0.16);
+  --focus-ring: #4fd8ff;
+
+  /* Puces de données NASA & simulation */
+  --chip-real-ink: #4fd8ff;
+  --chip-real-border: rgba(79, 216, 255, 0.40);
+  --chip-real-bg: rgba(79, 216, 255, 0.15);
+  --chip-game-ink: #ffd24a;
+  --chip-game-border: rgba(255, 210, 74, 0.35);
+  --chip-game-bg: rgba(255, 210, 74, 0.12);
+
+  /* Rayons de courbure */
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* Ergonomie tactile & transitions */
+  --touch-target-min: 48px;
+  --transition-fast: 150ms ease-out;
+  --transition-base: 250ms ease-out;
+  --transition-spring: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+
   color-scheme: dark;
 }
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 18px; }
-body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--text-base);
+}
+
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
