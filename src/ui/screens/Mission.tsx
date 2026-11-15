@@ -3,12 +3,14 @@
 // OptionCard approach console with live delta previews, and AlertOverlay.
 // Strictly respects DESIGN.md section 4 and PRESENTATION.md section 5.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { OptionStyle } from '../types';
 import type { AlertSpec } from '../../engine/types';
 import { HudBar } from '../components/HudBar';
 import { OptionCard, type OptionCostDeltas } from '../components/OptionCard';
 import { AlertOverlay } from '../components/AlertOverlay';
+import { DataLensOverlay } from '../components/DataLensOverlay';
+import { DataPassportModal } from '../components/DataPassportModal';
 import type { MeterType } from '../components/MeterBar';
 
 export interface MissionProps {
@@ -75,6 +77,26 @@ export const Mission: React.FC<MissionProps> = ({
 }) => {
   const [hoveredStyle, setHoveredStyle] = useState<OptionStyle | null>(null);
   const [isDataLoupeActive, setIsDataLoupeActive] = useState(false);
+  const [isPassportOpen, setIsPassportOpen] = useState(false);
+
+  // Keyboard shortcut listener for Data Loupe (L)
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault();
+        setIsDataLoupeActive((prev) => !prev);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   const activeDeltas = styleDeltas ?? STYLE_DELTAS;
 
@@ -212,6 +234,7 @@ export const Mission: React.FC<MissionProps> = ({
             deltas={activeDeltas.fast}
             durationLabel={activeDeltas.fast.duration}
             isHovered={hoveredStyle === 'fast'}
+            showDataTags={isDataLoupeActive}
             onSelect={onAction}
             onHover={setHoveredStyle}
             onLeave={() => setHoveredStyle(null)}
@@ -223,6 +246,7 @@ export const Mission: React.FC<MissionProps> = ({
             deltas={activeDeltas.balanced}
             durationLabel={activeDeltas.balanced.duration}
             isHovered={hoveredStyle === 'balanced'}
+            showDataTags={isDataLoupeActive}
             onSelect={onAction}
             onHover={setHoveredStyle}
             onLeave={() => setHoveredStyle(null)}
@@ -234,12 +258,26 @@ export const Mission: React.FC<MissionProps> = ({
             deltas={activeDeltas.careful}
             durationLabel={activeDeltas.careful.duration}
             isHovered={hoveredStyle === 'careful'}
+            showDataTags={isDataLoupeActive}
             onSelect={onAction}
             onHover={setHoveredStyle}
             onLeave={() => setHoveredStyle(null)}
           />
         </div>
       </section>
+
+      {/* Data Loupe Inspection Overlay */}
+      <DataLensOverlay
+        isActive={isDataLoupeActive}
+        onClose={() => setIsDataLoupeActive(false)}
+        onOpenPassport={() => setIsPassportOpen(true)}
+      />
+
+      {/* NASA Data Passport Modal */}
+      <DataPassportModal
+        isOpen={isPassportOpen}
+        onClose={() => setIsPassportOpen(false)}
+      />
 
       {/* Emergency Alert Overlay if active */}
       {activeAlert && (

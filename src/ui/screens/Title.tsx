@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { DataPassportModal } from '../components/DataPassportModal';
 
 interface TitleProps {
   onStart: () => void;
@@ -9,6 +10,8 @@ interface TitleProps {
 }
 
 export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
+  const [isPassportOpen, setIsPassportOpen] = useState(false);
+
   return (
     <div
       data-testid="screen-title"
@@ -98,6 +101,31 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
           <span style={{ fontSize: '13px', opacity: 0.75, marginLeft: '6px' }}>(Space / 1)</span>
         </button>
 
+        <button
+          type="button"
+          data-testid="btn-title-passport"
+          onClick={() => setIsPassportOpen(true)}
+          style={{
+            width: '100%',
+            minHeight: '44px',
+            fontSize: '13px',
+            fontWeight: 700,
+            background: 'var(--chip-real-bg, rgba(79, 216, 255, 0.15))',
+            border: '1px solid var(--chip-real-border, rgba(79, 216, 255, 0.4))',
+            color: 'var(--chip-real-ink, #4fd8ff)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            marginBottom: '10px',
+            borderRadius: 'var(--radius, 14px)',
+          }}
+        >
+          <span aria-hidden="true">📖</span>
+          <span>NASA Data Passport</span>
+        </button>
+
         {onToggleJudge && (
           <button
             type="button"
@@ -123,6 +151,11 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
           </button>
         )}
       </div>
+
+      <DataPassportModal
+        isOpen={isPassportOpen}
+        onClose={() => setIsPassportOpen(false)}
+      />
     </div>
   );
 }
