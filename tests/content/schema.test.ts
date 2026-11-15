@@ -142,6 +142,62 @@ describe('Mission Schema & Relay Missions (Moon and Mars)', () => {
     });
   });
 
+  describe('5 Mars Missions (T18)', () => {
+    const marsTemplates = ['relay', 'core', 'seismic', 'mapper', 'garden'] as const;
+
+    test('all 5 Mars missions exist, are enabled and validate', () => {
+      const marsMissions = getEnabledMissions('mars');
+      expect(marsMissions).toHaveLength(5);
+
+      for (const t of marsTemplates) {
+        const m = getMission('mars', t);
+        expect(m, `Mars mission for template ${t} must exist`).toBeDefined();
+        expect(m?.body).toBe('mars');
+        expect(m?.templateId).toBe(t);
+        expect(m?.enabled).toBe(true);
+        expect(m?.steps).toHaveLength(6);
+      }
+    });
+
+    test('Mars mission titles match SPEC.md section 5.1', () => {
+      expect(getMission('mars', 'relay')?.title).toBe('Mars Relay');
+      expect(getMission('mars', 'core')?.title).toBe('Mars Core Samples');
+      expect(getMission('mars', 'seismic')?.title).toBe('Marsquake Station');
+      expect(getMission('mars', 'mapper')?.title).toBe('Mars Water Mapper');
+      expect(getMission('mars', 'garden')?.title).toBe('Mars Garden');
+    });
+
+    test('Mars Garden references real NASA OSDR study OSD-7', () => {
+      const garden = getMission('mars', 'garden');
+      expect(garden?.osdrStudyId).toBe('OSD-7');
+    });
+
+    test('all 5 Mars missions are playable through 6 steps by a bot without crashing', () => {
+      const dummySolar: SolarContext = {
+        level: 'active',
+        pool: [],
+        provenance: { source: 'NASA DONKI', url: '', fetchedAt: '2026-11-15T00:00:00Z', isLive: false },
+      };
+      const loadout: Loadout = { crew: 3, power: 'panels', shield: 'standard', food: 'rations' };
+
+      for (const t of marsTemplates) {
+        let state = createRun(
+          { seed: 99, body: 'mars', missionId: t, siteId: 'jezero', difficulty: 'easy', loadout },
+          dummySolar
+        );
+
+        for (let step = 0; step < 6; step++) {
+          if (state.status !== 'running') break;
+          const result = resolveStep(state, { type: 'CHOOSE_OPTION', style: 'balanced' }, dummySolar);
+          state = result.state;
+        }
+
+        expect(state.status).toMatch(/running|won|lost/);
+        expect(state.meterHistory.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
   test('rejects mission with objective over 20 words', () => {
     const valid = getMission('moon', 'relay')!;
     const invalid: Mission = {
