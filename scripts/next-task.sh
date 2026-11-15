@@ -9,7 +9,7 @@ role="${1:-}"
 git fetch origin --tags --quiet 2>/dev/null || true
 ref=origin/main; git rev-parse --verify -q "$ref" >/dev/null || ref=main
 
-done_task() { git log "$ref" --format=%s | grep -qiE "\[$1\]"; }
+done_task() { git log "$ref" --format=%s | grep -iE "\[$1\]" >/dev/null; }
 dep_ok() {
   case "$1" in
     CP1) git tag -l | grep -qx cp1 ;;

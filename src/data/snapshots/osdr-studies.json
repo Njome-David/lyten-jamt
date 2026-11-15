@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "source": "OSDR",
+    "url": "https://osdr.nasa.gov/bio/repo/data/studies",
+    "fetchedAt": "2026-11-15T13:40:50Z",
+    "isLive": false,
+    "credit": "NASA / OSDR",
+    "note": "Selected OSDR Arabidopsis studies for L2"
+  },
+  "data": [
+    {
+      "id": "OSD-7",
+      "title": "The Arabidopsis spaceflight transcriptome: a comparison of whole plants to discrete root, hypocotyl and shoot responses to the orbital environment",
+      "organism": "Arabidopsis thaliana",
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-7"
+    },
+    {
+      "id": "OSD-37",
+      "title": "Plant Mechanical Signaling During Spaceflight",
+      "organism": "Arabidopsis thaliana",
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-37"
+    },
+    {
+      "id": "OSD-251",
+      "title": "RNA‑seq analysis of the response of Arabidopsis thaliana to fractional gravity under blue‑light stimulation during spaceflight",
+      "organism": "Arabidopsis thaliana",
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-251"
+    }
+  ]
+}
