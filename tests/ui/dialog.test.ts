@@ -9,6 +9,8 @@ import {
   guidedTour,
   narrativeDialogues,
   dialogues,
+  getLossDialogue,
+  getLowMeterDialogue,
   type Dialogue,
   type NovaExpression,
 } from '../../src/content/dialogues';
@@ -130,5 +132,95 @@ describe('T10: Dialogue runner logic and countdown safety', () => {
 
     const activeWithCountdown = queue.length > 0 && !true;
     expect(activeWithCountdown).toBe(false);
+  });
+});
+
+describe('T22: Complete Nova dialogues coverage and rules (docs/fr/01 section 8.4)', () => {
+  const mandatoryTriggers = [
+    'firstLoadout',
+    'firstMissionStart',
+    'firstFlare',
+    'firstTimedAlert',
+    'firstMarsDelay',
+    'firstDustStorm',
+    'firstFault',
+    'firstBlackout',
+    'firstLunarNight',
+    'hydroponicsChosen',
+    'reinforcedShieldChosen',
+    'lowAir',
+    'lowPower',
+    'lowHealth',
+    'lowFood',
+    'firstWin',
+    'firstLoss',
+    'firstLossAir',
+    'firstLossPower',
+    'firstLossHealth',
+    'firstLossFood',
+    'firstBadge',
+    'firstRankUp',
+    'firstStreak',
+  ];
+
+  it('provides a dialogue for every mandatory trigger from section 8.4 and 4.2', () => {
+    mandatoryTriggers.forEach((trigger) => {
+      expect(
+        narrativeDialogues[trigger],
+        `Trigger "${trigger}" missing from narrativeDialogues`
+      ).toBeDefined();
+      expect(narrativeDialogues[trigger]?.id).toBe(trigger);
+      expect(narrativeDialogues[trigger]?.text.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('strictly limits every single dialogue in the entire catalogue to 14 words or fewer', () => {
+    dialogues.forEach((d) => {
+      const words = d.text.trim().split(/\s+/).filter(Boolean);
+      expect(
+        words.length,
+        `Dialogue "${d.id}" has ${words.length} words (max 14 allowed): "${d.text}"`
+      ).toBeLessThanOrEqual(14);
+    });
+  });
+
+  it('ensures all dialogues have a valid NovaExpression', () => {
+    const validExpressions: Set<NovaExpression> = new Set([
+      'neutral',
+      'happy',
+      'worried',
+      'alert',
+      'thinking',
+      'proud',
+      'goodbye',
+    ]);
+
+    dialogues.forEach((d) => {
+      if (d.expression) {
+        expect(validExpressions.has(d.expression)).toBe(true);
+      }
+    });
+  });
+
+  it('ensures all dialogue texts are in English and contain no French words or accents', () => {
+    const frenchRegex = /[éèêëàâäçùûüôöîï]/i;
+    dialogues.forEach((d) => {
+      expect(frenchRegex.test(d.text), `Dialogue "${d.id}" contains French accent: "${d.text}"`).toBe(false);
+    });
+  });
+
+  it('retrieves cause-specific loss dialogues via getLossDialogue', () => {
+    expect(getLossDialogue('air').id).toBe('firstLossAir');
+    expect(getLossDialogue('power').id).toBe('firstLossPower');
+    expect(getLossDialogue('health').id).toBe('firstLossHealth');
+    expect(getLossDialogue('food').id).toBe('firstLossFood');
+    expect(getLossDialogue().id).toBe('firstLoss');
+  });
+
+  it('retrieves meter alert dialogues via getLowMeterDialogue', () => {
+    expect(getLowMeterDialogue('air').id).toBe('lowAir');
+    expect(getLowMeterDialogue('power').id).toBe('lowPower');
+    expect(getLowMeterDialogue('health').id).toBe('lowHealth');
+    expect(getLowMeterDialogue('food').id).toBe('lowFood');
   });
 });

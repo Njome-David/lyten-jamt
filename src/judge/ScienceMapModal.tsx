@@ -45,7 +45,7 @@ const NASA_DATASETS: DatasetEntry[] = [
     source: 'NASA Biological & Physical Sciences / GeneLab',
     endpoint: 'https://osdr.nasa.gov/bio/repo/data/studies/',
     type: 'BUNDLED',
-    description: 'Peer-reviewed space biology datasets: OSD-251 (fractional gravity botany), OSD-379 (radiorésistance), OSD-665 (cell survival).',
+    description: 'Peer-reviewed space biology datasets: OSD-251 (fractional gravity botany), OSD-379 (radioresistance), OSD-665 (cell survival).',
     gameUsage: 'Directly informs the hydroponic greenhouse mission steps, crew radiation recovery mechanics, and experiment archetypes.',
   },
   {
