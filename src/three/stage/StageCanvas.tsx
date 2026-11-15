@@ -183,6 +183,8 @@ export function StageCanvas({
           antialias: qualityConfig.level === 'high',
           powerPreference: 'high-performance',
           alpha: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.0,
         }}
       >
         <CameraController
