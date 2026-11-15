@@ -4,6 +4,8 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { OrbitScene } from './OrbitScene';
+import { OutpostKit } from '../outpost/OutpostKit';
+import { OutpostKit } from '../outpost/OutpostKit';
 import { SurfaceScene } from './SurfaceScene';
 import { detectQuality, getQualityConfig, type QualityConfig, type QualityLevel } from './quality';
 import type { StageMode, CelestialBody, SiteId, StageProps } from './types';
@@ -196,11 +198,14 @@ export function StageCanvas({
             reducedMotion={qualityConfig.reducedMotion}
           />
         ) : (
-          <SurfaceScene
-            site={site}
-            body={body}
-            qualityConfig={qualityConfig}
-          />
+          <>
+            <SurfaceScene
+              site={site}
+              body={body}
+              qualityConfig={qualityConfig}
+            />
+            {(mode === 'mission' || mode === 'debrief') && <OutpostKit site={site} />}
+          </>
         )}
       </Canvas>
     </div>
