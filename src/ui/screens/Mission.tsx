@@ -1,9 +1,17 @@
-'use client';
+// src/ui/screens/Mission.tsx
+// Mission command screen integrating HudBar (meters + progress track),
+// OptionCard approach console with live delta previews, and AlertOverlay.
+// Strictly respects DESIGN.md section 4 and PRESENTATION.md section 5.
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { OptionStyle } from '../types';
+import type { AlertSpec } from '../../engine/types';
+import { HudBar } from '../components/HudBar';
+import { OptionCard, type OptionCostDeltas } from '../components/OptionCard';
+import { AlertOverlay } from '../components/AlertOverlay';
+import type { MeterType } from '../components/MeterBar';
 
-interface MissionProps {
+export interface MissionProps {
   stepIndex: number;
   totalSteps: number;
   meters: {
@@ -12,27 +20,62 @@ interface MissionProps {
     health: number;
     food: number;
   };
+  solarLevel?: 'quiet' | 'active' | 'storm';
+  activeAlert?: AlertSpec | null;
   onAction: (style: OptionStyle) => void;
+  onAlertChoice?: (choiceId: 'A' | 'B' | 'C' | 'EXPIRED') => void;
   onPause: () => void;
+  isMuted?: boolean;
+  onToggleMute?: () => void;
 }
 
-const STEP_NAMES = [
-  'Site Reconnaissance',
-  'Array Deployment',
-  'Regolith Drilling',
-  'Sample Analysis',
-  'System Calibration',
-  'Earth Telemetry Uplink',
-];
+const STYLE_DELTAS: Record<OptionStyle, OptionCostDeltas & { duration: string }> = {
+  fast: {
+    power: -18,
+    air: -8,
+    food: -5,
+    faultRisk: 0.25,
+    duration: '2.5s',
+  },
+  balanced: {
+    power: -12,
+    air: -5,
+    food: -3,
+    faultRisk: 0.05,
+    duration: '3.5s',
+  },
+  careful: {
+    power: -6,
+    air: -3,
+    food: -2,
+    faultRisk: 0.0,
+    duration: '5.0s',
+  },
+};
 
-export function Mission({
+export const Mission: React.FC<MissionProps> = ({
   stepIndex,
   totalSteps,
   meters,
+  solarLevel = 'quiet',
+  activeAlert,
   onAction,
+  onAlertChoice,
   onPause,
-}: MissionProps) {
-  const currentStepName = STEP_NAMES[(stepIndex - 1) % STEP_NAMES.length] || 'Mission Operation';
+  isMuted,
+  onToggleMute,
+}) => {
+  const [hoveredStyle, setHoveredStyle] = useState<OptionStyle | null>(null);
+  const [isDataLoupeActive, setIsDataLoupeActive] = useState(false);
+
+  // Active preview deltas based on hovered card
+  const deltaPreviews: Partial<Record<MeterType, number>> | undefined = hoveredStyle
+    ? {
+        power: STYLE_DELTAS[hoveredStyle].power,
+        air: STYLE_DELTAS[hoveredStyle].air,
+        food: STYLE_DELTAS[hoveredStyle].food,
+      }
+    : undefined;
 
   return (
     <div
@@ -46,115 +89,41 @@ export function Mission({
         position: 'relative',
         zIndex: 1,
         pointerEvents: 'none',
+        boxSizing: 'border-box',
       }}
     >
-      {/* Top HUD: Meters + Step Tracker + Controls */}
-      <div
+      {/* Top Section: HudBar with ProgressTrack, Meters & Controls */}
+      <HudBar
+        stepIndex={stepIndex}
+        totalSteps={totalSteps}
+        meters={meters}
+        deltaPreviews={deltaPreviews}
+        solarLevel={solarLevel}
+        isMuted={isMuted}
+        isDataLoupeActive={isDataLoupeActive}
+        onPause={onPause}
+        onToggleMute={onToggleMute}
+        onToggleDataLoupe={() => setIsDataLoupeActive((prev) => !prev)}
+      />
+
+      {/* Center: Open view for 3D/2D Stage (at least 60% viewport reserved) */}
+      <div style={{ flex: 1, minHeight: '120px' }} />
+
+      {/* Bottom Console: 3 Approach Option Cards */}
+      <section
+        aria-label="Mission Operations Console"
         style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius)',
-          padding: '12px 18px',
-          boxShadow: 'var(--shadow-card)',
-          backdropFilter: 'blur(10px)',
-          pointerEvents: 'auto',
-          maxWidth: '960px',
-          margin: '0 auto',
-          width: '100%',
-        }}
-      >
-        {/* Step Indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase' }}>
-            Step {stepIndex}/{totalSteps}
-          </span>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink)' }}>
-            • {currentStepName}
-          </span>
-        </div>
-
-        {/* 4 Life-Support Meters */}
-        <div
-          data-testid="hud-meters"
-          style={{
-            display: 'flex',
-            gap: '14px',
-            alignItems: 'center',
-          }}
-        >
-          {/* Power */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title="Power">
-            <span aria-hidden="true">⚡</span>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--power)' }}>
-              {meters.power}%
-            </span>
-          </div>
-
-          {/* Air */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title="Air">
-            <span aria-hidden="true">💨</span>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--air)' }}>
-              {meters.air}%
-            </span>
-          </div>
-
-          {/* Health */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title="Health">
-            <span aria-hidden="true">❤️</span>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--health)' }}>
-              {meters.health}%
-            </span>
-          </div>
-
-          {/* Food */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title="Food">
-            <span aria-hidden="true">🌱</span>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--food)' }}>
-              {meters.food}%
-            </span>
-          </div>
-        </div>
-
-        {/* Pause Button */}
-        <button
-          type="button"
-          data-testid="btn-pause"
-          onClick={onPause}
-          style={{
-            minHeight: '38px',
-            minWidth: '38px',
-            padding: '4px 10px',
-            fontSize: '13px',
-            background: 'transparent',
-            border: '1px solid var(--border)',
-          }}
-          aria-label="Pause Mission (P / M)"
-        >
-          ⏸️ Pause (P)
-        </button>
-      </div>
-
-      {/* Center: Open view for 3D/2D Stage (at least 60% viewport) */}
-      <div style={{ flex: 1 }} />
-
-      {/* Bottom Command Console: 3 Style Choices */}
-      <div
-        style={{
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg, 20px)',
+          background: 'var(--panel-gradient, rgba(12, 20, 39, 0.95))',
+          border: '1px solid var(--border-panel, rgba(148, 163, 184, 0.20))',
+          borderRadius: 'var(--radius-xl, 24px)',
           padding: '16px 20px',
-          boxShadow: 'var(--shadow-card)',
-          backdropFilter: 'blur(12px)',
+          boxShadow: 'var(--shadow-panel, 0 14px 34px -14px rgba(2,6,23,0.75))',
+          backdropFilter: 'blur(16px)',
           pointerEvents: 'auto',
-          maxWidth: '820px',
+          maxWidth: '920px',
           margin: '0 auto',
           width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         <div
@@ -165,86 +134,81 @@ export function Mission({
             marginBottom: '12px',
           }}
         >
-          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ink)' }}>
-            Choose Operational Approach:
+          <span
+            style={{
+              fontSize: 'var(--text-sm, 14px)',
+              fontWeight: 800,
+              color: 'var(--ink, #f1f5f9)',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Operational Approach Style:
           </span>
-          <span style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>
-            Keys: 1 (Fast), 2 (Balanced), 3 (Careful)
+          <span
+            style={{
+              fontSize: '12px',
+              color: 'var(--ink-muted, #64748b)',
+              fontFamily: 'var(--font-mono, monospace)',
+            }}
+          >
+            Keys: [1] Fast • [2] Balanced • [3] Careful
           </span>
         </div>
 
+        {/* 3 Option Cards Grid */}
         <div
+          data-testid="option-cards"
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: '12px',
           }}
         >
-          {/* Fast */}
-          <button
-            type="button"
-            data-testid="btn-action-fast"
-            onClick={() => onAction('fast')}
-            autoFocus
-            style={{
-              padding: '12px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              border: '1px solid rgba(255, 210, 74, 0.4)',
-            }}
-          >
-            <div style={{ fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>⚡</span> Fast
-            </div>
-            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Saves time • High drain</div>
-            <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700 }}>(1)</div>
-          </button>
+          <OptionCard
+            styleType="fast"
+            shortcutKey="1"
+            deltas={STYLE_DELTAS.fast}
+            durationLabel={STYLE_DELTAS.fast.duration}
+            isHovered={hoveredStyle === 'fast'}
+            onSelect={onAction}
+            onHover={setHoveredStyle}
+            onLeave={() => setHoveredStyle(null)}
+          />
 
-          {/* Balanced */}
-          <button
-            type="button"
-            data-testid="btn-action-balanced"
-            onClick={() => onAction('balanced')}
-            style={{
-              padding: '12px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              border: '1px solid rgba(79, 216, 255, 0.4)',
-            }}
-          >
-            <div style={{ fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>⚖️</span> Balanced
-            </div>
-            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Standard consumption</div>
-            <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700 }}>(2)</div>
-          </button>
+          <OptionCard
+            styleType="balanced"
+            shortcutKey="2"
+            deltas={STYLE_DELTAS.balanced}
+            durationLabel={STYLE_DELTAS.balanced.duration}
+            isHovered={hoveredStyle === 'balanced'}
+            onSelect={onAction}
+            onHover={setHoveredStyle}
+            onLeave={() => setHoveredStyle(null)}
+          />
 
-          {/* Careful */}
-          <button
-            type="button"
-            data-testid="btn-action-careful"
-            onClick={() => onAction('careful')}
-            style={{
-              padding: '12px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              border: '1px solid rgba(139, 226, 139, 0.4)',
-            }}
-          >
-            <div style={{ fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>🛡️</span> Careful
-            </div>
-            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Takes time • Low drain</div>
-            <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700 }}>(3)</div>
-          </button>
+          <OptionCard
+            styleType="careful"
+            shortcutKey="3"
+            deltas={STYLE_DELTAS.careful}
+            durationLabel={STYLE_DELTAS.careful.duration}
+            isHovered={hoveredStyle === 'careful'}
+            onSelect={onAction}
+            onHover={setHoveredStyle}
+            onLeave={() => setHoveredStyle(null)}
+          />
         </div>
-      </div>
+      </section>
+
+      {/* Emergency Alert Overlay if active */}
+      {activeAlert && (
+        <AlertOverlay
+          alert={activeAlert}
+          onSelectChoice={onAlertChoice ?? (() => {})}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default Mission;
