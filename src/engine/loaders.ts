@@ -3,7 +3,9 @@
  * All functions return plain objects defined in `src/engine/types.ts`.
  * They are pure TypeScript (no React/DOM/Date/Math.random).
  */
-import type { Loadout, Meters, Option, OptionId, OptionPreview, Passive, Radiation, RadiationLevel } from './types';
+import type { Loadout, Meters, Option, OptionPreview, Passive, Radiation } from './types';
+import { PassiveId } from './types';
+import { RadiationLevel } from './types';
 import { initialGauges } from './jauges';
 
 /** Load default loadout for a given body and difficulty */
@@ -26,12 +28,12 @@ export async function loadInitialGauges(): Promise<Meters> {
 export async function loadPassives(): Promise<Passive[]> {
   return [
     {
-      id: 'shield' as any, // cast because enum defined elsewhere
+      id: PassiveId.SHIELD,
       gaugeDelta: { health: -5 },
       description: 'Provides occasional shield boost.',
     },
     {
-      id: 'energy_saver' as any,
+      id: PassiveId.ENERGY_SAVER,
       gaugeDelta: { power: -10 },
       description: 'Reduces power consumption.',
     },

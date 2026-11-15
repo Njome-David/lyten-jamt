@@ -9,7 +9,7 @@ export function clampGauge(value: number): number {
 }
 
 export function applyGaugeDelta(meters: Meters, delta: Partial<Meters>): Meters {
-  const result: Meters = { ...meters } as any;
+  const result: Meters = { ...meters };
   (Object.keys(delta) as (keyof Meters)[]).forEach((key) => {
     const cur = meters[key] ?? 0;
     const inc = delta[key] ?? 0;
