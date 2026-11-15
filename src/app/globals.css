@@ -4,11 +4,22 @@
   --bg: #070c18;
   --bg-deep: #05070d;
   --surface-panel: rgba(12, 20, 39, 0.88);
+  --surface-hover: rgba(24, 35, 60, 0.96);
   --border-panel: rgba(148, 163, 184, 0.20);
   --surface-subpanel: rgba(15, 23, 42, 0.72);
   --border-subpanel: rgba(148, 163, 184, 0.14);
+  --surface-overlay: rgba(5, 7, 13, 0.82);
+  --surface-card: #0d1527;
   --panel-gradient: linear-gradient(180deg, rgba(19, 30, 56, 0.92) 0%, rgba(12, 20, 39, 0.95) 100%);
   --shadow-panel: 0 14px 34px -14px rgba(2, 6, 23, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+
+  /* Aliases pour composants UI */
+  --surface: var(--surface-panel);
+  --border: var(--border-panel);
+  --border-focus: var(--focus-ring);
+  --border-active: var(--power);
+  --accent: var(--accent-moon);
 
   /* Typographie & niveaux d'encre */
   --ink: #f1f5f9;
@@ -87,6 +98,9 @@ html, body {
   color: var(--ink);
   font-family: var(--font);
   font-size: var(--text-base);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 body {
@@ -98,8 +112,31 @@ body {
   outline-offset: 2px;
 }
 
-button {
+/* Touch targets and accessible interactive elements */
+button, [role="button"] {
   font-family: inherit;
+  color: inherit;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:hover:not(:disabled), [role="button"]:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-focus);
+}
+
+button:active:not(:disabled), [role="button"]:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled, [role="button"][aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 @media (prefers-reduced-motion: reduce) {
