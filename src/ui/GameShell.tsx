@@ -17,6 +17,9 @@ import {
   Mission,
   Debrief,
 } from './screens';
+import { loadSave, saveSave } from '../progress/save';
+import type { SaveV1 } from '../engine/types';
+import { ProfileLockerModal } from './components/ProfileLockerModal';
 import { createRun, resolveStep, previewOption, scoreRun } from '../engine';
 import { getSolarContext } from '../data/solar';
 import { MISSIONS } from '../content/missions';
@@ -149,6 +152,19 @@ export function GameShell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [state, dispatch] = useReducer(uiReducer, INITIAL_UI_STATE);
+  // Load persistent player save
+  const [save, setSave] = useState<SaveV1>(loadSave());
+  // Locker modal visibility
+  const [lockerOpen, setLockerOpen] = useState(false);
+
+  const handleOpenLocker = () => setLockerOpen(true);
+  const handleCloseLocker = () => setLockerOpen(false);
+
+  const handleUpdateProfile = (patch: Partial<SaveV1['profile']>) => {
+    const updated = { ...save, profile: { ...save.profile, ...patch } };
+    setSave(updated);
+    saveSave(updated);
+  };
   const [isExecuting, setIsExecuting] = useState(false);
   const judge = useJudgeMode();
 
@@ -494,6 +510,8 @@ export function GameShell() {
             onStart={() => dispatch({ type: 'NAVIGATE', screen: 'destination' })}
             onToggleJudge={judge.toggleEnabled}
             isJudgeEnabled={judge.state.enabled}
+            save={save}
+            onOpenLocker={handleOpenLocker}
           />
         )}
 
@@ -557,10 +575,18 @@ export function GameShell() {
             site={state.site}
             missionId={state.missionId}
             score={state.runScore}
+              meterHistory={state.runState?.meterHistory ?? []}
             onRestart={() => dispatch({ type: 'RESET' })}
           />
         )}
       </main>
+        {/* Astronaut Locker Modal */}
+        <ProfileLockerModal
+          save={save}
+          isOpen={lockerOpen}
+          onClose={handleCloseLocker}
+          onUpdateProfile={handleUpdateProfile}
+        />
 
       {/* Paused Modal Dialog */}
       {isDialogActive && currentDialog && (

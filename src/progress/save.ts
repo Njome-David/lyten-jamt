@@ -23,7 +23,7 @@ export function createDefaultSave(): SaveV1 {
     streak: { count: 0, lastDay: '', jokerReady: false },
     badges: [],
     best: {},
-    stats: { winStreak: 0, pressureWinsClean: 0, welcomeGiven: false },
+    stats: { missionsPlayed: 0, missionsWon: 0, winStreak: 0, pressureWinsClean: 0, welcomeGiven: false },
     seen: [],
     settings: { muted: false, extraTime: false, speed: 1 },
   };
@@ -255,6 +255,8 @@ export function recordMissionCompletion(
     streak: streakUpdate.streak,
     best: nextBest,
     stats: {
+      missionsPlayed: (currentSave.stats.missionsPlayed ?? 0) + 1,
+      missionsWon: (currentSave.stats.missionsWon ?? 0) + (params.isWon ? 1 : 0),
       winStreak: nextWinStreak,
       pressureWinsClean: nextPressureWinsClean,
       welcomeGiven: true,

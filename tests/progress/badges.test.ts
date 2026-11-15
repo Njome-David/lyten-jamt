@@ -17,7 +17,7 @@ describe('badge conditions', () => {
       'moon-relay': { easy: 3, medium: 3, hard: 3 },
       'mars-relay': { easy: 2, medium: 2, hard: 2 },
     },
-    stats: { winStreak: 0, pressureWinsClean: 0, welcomeGiven: false },
+    stats: { winStreak: 0, pressureWinsClean: 0, welcomeGiven: false, missionsPlayed: 0, missionsWon: 0 },
     seen: [],
     settings: { muted: false, extraTime: false, speed: 1 },
   };

@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+// import type { Body, SiteId, MissionTemplateId } from '../types';
 import type { Body, SiteId, MissionTemplateId } from '../types';
 import type { RunScore } from '../../engine/types';
+import { TelemetrySparkline } from '../components/TelemetrySparkline';
 
 interface DebriefProps {
   destination: Body;
@@ -10,12 +12,13 @@ interface DebriefProps {
   missionId: MissionTemplateId;
   score?: RunScore | null;
   onRestart: () => void;
+  meterHistory?: Array<{ label: string; meters: import('../../engine/types').Meters }>;
 }
 
-export function Debrief({ destination, site, missionId, score, onRestart }: DebriefProps) {
+export function Debrief({ destination, site, missionId, score, onRestart, meterHistory }: DebriefProps) {
   const starsCount = score?.stars ?? 3;
   const starsDisplay = '⭐'.repeat(starsCount) || '🌑';
-  const xpTotal = score?.xp.total ?? 350;
+  const xpTotal = score?.xp?.total ?? 350;
   const isWon = starsCount > 0;
 
   return (
@@ -45,14 +48,25 @@ export function Debrief({ destination, site, missionId, score, onRestart }: Debr
           backdropFilter: 'blur(12px)',
         }}
       >
+        {/* Result Icon */}
         <div style={{ fontSize: '42px', marginBottom: '8px' }} aria-hidden="true">
           {isWon ? '🏆' : '⚠️'}
         </div>
 
+        {/* Optional Telemetry */}
+        {meterHistory && meterHistory.length > 0 && (
+          <TelemetrySparkline data={meterHistory.map((entry, idx) => ({
+            timestamp: idx,
+            power: entry.meters.power,
+            air: entry.meters.air,
+            food: entry.meters.food,
+            health: entry.meters.health,
+          }))} />
+        )}
+
         <h2 style={{ fontSize: '28px', margin: '0 0 8px 0', fontWeight: 800 }}>
           {isWon ? 'Mission Accomplished!' : 'Mission Debrief: Recovery Needed'}
         </h2>
-
         <p style={{ fontSize: '15px', color: 'var(--ink-dim)', margin: '0 0 20px 0' }}>
           {score?.causeSummary ?? `Mission debrief for ${destination.toUpperCase()} outpost at ${site.toUpperCase()}`}
         </p>
@@ -77,9 +91,7 @@ export function Debrief({ destination, site, missionId, score, onRestart }: Debr
           </div>
           <div>
             <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Mission</div>
-            <div style={{ fontSize: '15px', fontWeight: 700, textTransform: 'capitalize' }}>
-              {missionId}
-            </div>
+            <div style={{ fontSize: '15px', fontWeight: 700, textTransform: 'capitalize' }}>{missionId}</div>
           </div>
           <div>
             <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>XP Earned</div>
@@ -89,19 +101,13 @@ export function Debrief({ destination, site, missionId, score, onRestart }: Debr
           </div>
           <div>
             <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Status</div>
-            <div
-              style={{
-                fontSize: '15px',
-                color: isWon ? 'var(--success)' : 'var(--danger)',
-                fontWeight: 700,
-              }}
-            >
+            <div style={{ fontSize: '15px', color: isWon ? 'var(--success)' : 'var(--danger)', fontWeight: 700 }}>
               {isWon ? 'Nominal' : 'Critical'}
             </div>
           </div>
         </div>
 
-        {/* Real Incidents List if any */}
+        {/* Incidents List */}
         {score?.incidents && score.incidents.length > 0 && (
           <div
             style={{

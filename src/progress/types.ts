@@ -30,6 +30,8 @@ export interface PlayerStreak {
 }
 
 export interface PlayerStats {
+  missionsPlayed: number;
+  missionsWon: number;
   winStreak: number;
   pressureWinsClean: number;
   welcomeGiven: boolean;
