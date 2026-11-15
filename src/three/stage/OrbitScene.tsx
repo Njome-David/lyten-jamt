@@ -4,6 +4,12 @@ import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { CelestialBody, StageMode } from './types';
+import {
+  createEarthTexture,
+  createMarsTexture,
+  createMoonTexture,
+  createRegolithBumpTexture,
+} from './proceduralTextures';
 
 interface OrbitSceneProps {
   mode: StageMode;
@@ -15,7 +21,7 @@ interface OrbitSceneProps {
 /**
  * Procedural starfield using Points and BufferGeometry.
  */
-function StarField({ count = 800 }: { count?: number }) {
+function StarField({ count = 900 }: { count?: number }) {
   const pointsRef = useRef<THREE.Points>(null);
 
   const { positions, colors } = useMemo(() => {
@@ -23,7 +29,6 @@ function StarField({ count = 800 }: { count?: number }) {
     const col = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
-      // Uniform distribution on sphere
       const u = Math.random();
       const v = Math.random();
       const theta = u * 2.0 * Math.PI;
@@ -35,7 +40,6 @@ function StarField({ count = 800 }: { count?: number }) {
       pos[i * 3 + 1] = r * sinPhi * Math.sin(theta);
       pos[i * 3 + 2] = r * Math.cos(phi);
 
-      // Star hues: slightly blue, warm, or white
       const type = Math.random();
       if (type > 0.8) {
         col[i * 3] = 0.8;
@@ -68,7 +72,7 @@ function StarField({ count = 800 }: { count?: number }) {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.6}
+        size={0.65}
         vertexColors
         transparent
         opacity={0.85}
@@ -79,10 +83,12 @@ function StarField({ count = 800 }: { count?: number }) {
 }
 
 /**
- * Procedural Earth sphere with atmosphere halo.
+ * Procedural Earth sphere with realistic CanvasTexture (oceans, continents, clouds)
+ * and cyan atmospheric halo.
  */
 function EarthSphere({ position = [0, 0, -12] as [number, number, number] }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const earthTexture = useMemo(() => createEarthTexture(), []);
 
   useFrame((_, delta) => {
     if (meshRef.current) {
@@ -92,23 +98,23 @@ function EarthSphere({ position = [0, 0, -12] as [number, number, number] }) {
 
   return (
     <group position={position}>
+      {/* 1. Earth Body with Procedural Surface Map */}
       <mesh ref={meshRef}>
-        <sphereGeometry args={[3.2, 32, 32]} />
+        <sphereGeometry args={[3.2, 36, 36]} />
         <meshStandardMaterial
-          color="#1e40af"
-          roughness={0.7}
+          map={earthTexture}
+          roughness={0.65}
           metalness={0.1}
-          emissive="#0d1b4a"
-          emissiveIntensity={0.2}
         />
       </mesh>
-      {/* Atmosphere glow */}
-      <mesh scale={[1.08, 1.08, 1.08]}>
-        <sphereGeometry args={[3.2, 24, 24]} />
+
+      {/* 2. Atmospheric Halo: slightly larger sphere with transparent cyan MeshBasicMaterial */}
+      <mesh scale={[1.06, 1.06, 1.06]}>
+        <sphereGeometry args={[3.2, 32, 32]} />
         <meshBasicMaterial
-          color="#38bdf8"
+          color="#06b6d4"
           transparent
-          opacity={0.18}
+          opacity={0.15}
           side={THREE.BackSide}
         />
       </mesh>
@@ -117,7 +123,8 @@ function EarthSphere({ position = [0, 0, -12] as [number, number, number] }) {
 }
 
 /**
- * Procedural Moon sphere.
+ * Procedural Moon sphere: cratered CanvasTexture, roughness: 1.0,
+ * regolith bumpMap, wireframe removed.
  */
 function MoonSphere({
   position = [-3.8, 0.4, 0] as [number, number, number],
@@ -129,6 +136,8 @@ function MoonSphere({
   onClick?: () => void;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const moonTexture = useMemo(() => createMoonTexture(), []);
+  const bumpTexture = useMemo(() => createRegolithBumpTexture(), []);
 
   useFrame((_, delta) => {
     if (meshRef.current) {
@@ -139,24 +148,27 @@ function MoonSphere({
   return (
     <group position={position} onClick={onClick}>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[1.3, 32, 32]} />
+        <sphereGeometry args={[1.3, 36, 36]} />
         <meshStandardMaterial
-          color={isSelected ? '#f1f5f9' : '#cbd5e1'}
-          roughness={0.9}
-          metalness={0.05}
+          map={moonTexture}
+          bumpMap={bumpTexture}
+          bumpScale={0.06}
+          roughness={1.0}
+          metalness={0.0}
           emissive={isSelected ? '#38bdf8' : '#000000'}
           emissiveIntensity={isSelected ? 0.25 : 0}
         />
       </mesh>
-      {/* Selection halo */}
+
+      {/* Selection halo: soft atmospheric rim glow (wireframe removed) */}
       {isSelected && (
-        <mesh scale={[1.15, 1.15, 1.15]}>
+        <mesh scale={[1.12, 1.12, 1.12]}>
           <sphereGeometry args={[1.3, 24, 24]} />
           <meshBasicMaterial
             color="#38bdf8"
             transparent
-            opacity={0.25}
-            wireframe
+            opacity={0.22}
+            side={THREE.BackSide}
           />
         </mesh>
       )}
@@ -165,7 +177,7 @@ function MoonSphere({
 }
 
 /**
- * Procedural Mars sphere with subtle polar caps.
+ * Procedural Mars sphere: rusty/ochre CanvasTexture with dark maria & polar cap.
  */
 function MarsSphere({
   position = [3.8, -0.4, 0] as [number, number, number],
@@ -177,6 +189,7 @@ function MarsSphere({
   onClick?: () => void;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const marsTexture = useMemo(() => createMarsTexture(), []);
 
   useFrame((_, delta) => {
     if (meshRef.current) {
@@ -187,34 +200,36 @@ function MarsSphere({
   return (
     <group position={position} onClick={onClick}>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[1.5, 32, 32]} />
+        <sphereGeometry args={[1.5, 36, 36]} />
         <meshStandardMaterial
-          color={isSelected ? '#ff8a4c' : '#c2410c'}
-          roughness={0.85}
-          metalness={0.1}
-          emissive={isSelected ? '#f97316' : '#431407'}
-          emissiveIntensity={isSelected ? 0.3 : 0.1}
+          map={marsTexture}
+          roughness={0.9}
+          metalness={0.05}
+          emissive={isSelected ? '#f97316' : '#000000'}
+          emissiveIntensity={isSelected ? 0.25 : 0}
         />
       </mesh>
+
       {/* Atmosphere haze */}
       <mesh scale={[1.05, 1.05, 1.05]}>
         <sphereGeometry args={[1.5, 24, 24]} />
         <meshBasicMaterial
           color="#ea580c"
           transparent
-          opacity={0.15}
+          opacity={0.16}
           side={THREE.BackSide}
         />
       </mesh>
-      {/* Selection halo */}
+
+      {/* Selection halo (wireframe removed) */}
       {isSelected && (
-        <mesh scale={[1.15, 1.15, 1.15]}>
+        <mesh scale={[1.12, 1.12, 1.12]}>
           <sphereGeometry args={[1.5, 24, 24]} />
           <meshBasicMaterial
             color="#fb923c"
             transparent
-            opacity={0.3}
-            wireframe
+            opacity={0.25}
+            side={THREE.BackSide}
           />
         </mesh>
       )}
@@ -222,6 +237,11 @@ function MarsSphere({
   );
 }
 
+/**
+ * OrbitScene with realistic deep space lighting:
+ * - High-intensity directional sunlight on the side (terminator line)
+ * - Faint ambient light (0.1) for realistic shadows
+ */
 export function OrbitScene({
   mode: _mode,
   selectedBody,
@@ -231,11 +251,20 @@ export function OrbitScene({
 
   return (
     <group ref={groupRef}>
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[10, 10, 5]} intensity={1.5} />
-      <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#3b82f6" />
+      {/* 1. Deep Space Ambient Lighting (subtle non-black dark side) */}
+      <ambientLight intensity={0.1} />
 
+      {/* 2. Strong Side Sun Directional Light for sharp planetary day/night terminator */}
+      <directionalLight
+        position={[14, 2, 7]}
+        intensity={2.6}
+        castShadow
+      />
+
+      {/* 3. Celestial Starfield */}
       <StarField />
+
+      {/* 4. Planetary Bodies */}
       <EarthSphere />
 
       <MoonSphere
