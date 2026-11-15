@@ -69,14 +69,41 @@ export function verifyData(options?: { dir?: string; strict?: boolean }): Verify
         }
       }
 
+      if (f.startsWith('osdr-studies') && Array.isArray(snap.data)) {
+        for (let i = 0; i < snap.data.length; i++) {
+          const study = snap.data[i];
+          if (!study.id) errors.push(`${f}[${i}]: id manquant`);
+          if (!study.title) errors.push(`${f}[${i}]: title manquant`);
+          if (!study.organism) errors.push(`${f}[${i}]: organism manquant`);
+          if (!study.url) errors.push(`${f}[${i}]: url manquant`);
+        }
+      }
+
       if (f.startsWith('images-') && Array.isArray(snap.data)) {
         for (const it of snap.data) {
           if (!it.credit || !it.nasa_id) errors.push(`${f}: image sans credit ou nasa_id`);
+          if (it.file && f.startsWith('images-avatars')) {
+            const avatarPath = join('public/avatars', it.file);
+            if (!existsSync(avatarPath)) {
+              errors.push(`${f}: fichier image ${it.file} introuvable dans public/avatars`);
+            }
+          }
         }
       }
     } catch (e) {
       errors.push(`${f}: JSON invalide (${(e as Error).message})`);
     }
+  }
+
+  // Verification de src/data/facts.ts
+  const factsPath = 'src/data/facts.ts';
+  if (existsSync(factsPath)) {
+    const txt = readFileSync(factsPath, 'utf8');
+    if (!/SCIENTIFIC_FACTS/.test(txt)) {
+      errors.push('facts.ts: export SCIENTIFIC_FACTS manquant');
+    }
+  } else {
+    warnings.push('src/data/facts.ts absent');
   }
 
   if (strict) {
@@ -86,7 +113,6 @@ export function verifyData(options?: { dir?: string; strict?: boolean }): Verify
       }
     }
     // Les faits utilises dans l'UI doivent etre verifies (data/facts.ts, cree en T03/T09).
-    const factsPath = 'src/data/facts.ts';
     if (existsSync(factsPath)) {
       const txt = readFileSync(factsPath, 'utf8');
       if (/status:\s*['"]needs-review['"]/.test(txt)) {

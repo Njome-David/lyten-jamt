@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "source": "NASA Image and Video Library",
+    "url": "https://images-api.nasa.gov",
+    "fetchedAt": "2026-11-15T12:35:00.000Z",
+    "isLive": false,
+    "credit": "NASA / Johnson Space Center (JSC)",
+    "note": "Avatars officiels d'astronautes en scaphandre EMU / combinaison de vol, debloques par les badges et profils."
+  },
+  "data": [
+    {
+      "id": "avatar-1",
+      "name": "Jessica Meir",
+      "nasa_id": "jsc2025e078605_alt",
+      "title": "Official portrait of NASA astronaut Jessica Meir wearing a spacesuit",
+      "credit": "NASA / JSC / Josh Valcarcel",
+      "description": "Astronaute de la NASA en scaphandre Extravehicular Mobility Unit (EMU) au Johnson Space Center.",
+      "file": "avatar-1-jsc2025e078605_alt.jpg"
+    },
+    {
+      "id": "avatar-2",
+      "name": "Joshua Kutryk",
+      "nasa_id": "jsc2025e081360_alt",
+      "title": "Astronaut Joshua Kutryk poses for an official portrait while wearing a spacesuit",
+      "credit": "NASA / JSC / Imagery Group",
+      "description": "Portrait officiel en scaphandre EMU pour mission en orbite basse et lunaire.",
+      "file": "avatar-2-jsc2025e081360_alt.jpg"
+    },
+    {
+      "id": "avatar-3",
+      "name": "Sophie Adenot",
+      "nasa_id": "jsc2025e073892_alt",
+      "title": "Official portrait of ESA astronaut Sophie Adenot wearing a spacesuit",
+      "credit": "NASA / JSC / Helen Arase Vargas",
+      "description": "Portrait officiel de l'astronaute européenne Sophie Adenot lors de son entraînement EMU à la NASA.",
+      "file": "avatar-3-jsc2025e073892_alt.jpg"
+    },
+    {
+      "id": "avatar-4",
+      "name": "Jonny Kim",
+      "nasa_id": "jsc2024e052674_alt",
+      "title": "NASA Astronaut Jonny Kim official portrait",
+      "credit": "NASA / JSC / Josh Valcarcel",
+      "description": "Portrait officiel de l'astronaute et médecin Jonny Kim au Johnson Space Center.",
+      "file": "avatar-4-jsc2024e052674_alt.jpg"
+    },
+    {
+      "id": "avatar-5",
+      "name": "Anil Menon",
+      "nasa_id": "jsc2026e000758",
+      "title": "NASA astronaut and flight engineer Anil Menon",
+      "credit": "NASA / JSC / Robert Markowitz",
+      "description": "Ingénieur de vol et médecin de mission spatiale préparant les futures missions d'exploration.",
+      "file": "avatar-5-jsc2026e000758.jpg"
+    }
+  ]
+}

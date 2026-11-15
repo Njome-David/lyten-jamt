@@ -1,4 +1,4 @@
-/* Contrat de donnees NASA et snapshots (voir docs/spec/DATA-CATALOG.md section 4) */
+/* Contrat de donnees NASA, snapshots et modeles scientifiques (docs/spec/DATA-CATALOG.md) */
 
 export interface Provenance {
   source: string;
@@ -23,4 +23,40 @@ export interface DonkiFlare {
   sourceLocation?: string;
   activeRegionNum?: number | null;
   link?: string;
+}
+
+export interface OsdrStudy {
+  id: string;
+  gldsId?: string;
+  title: string;
+  organism: string;
+  mission: string;
+  factors: string[];
+  description: string;
+  url: string;
+  keyFinding: string;
+}
+
+export interface AvatarItem {
+  id: string;
+  name: string;
+  nasa_id: string;
+  title: string;
+  credit: string;
+  description: string;
+  file: string;
+}
+
+export type SolarLevel = 'calm' | 'active' | 'stormy';
+
+export type FactStatus = 'needs-review' | 'verified';
+
+export interface ScientificFact {
+  id: string;
+  category: 'delay' | 'radiation' | 'solar' | 'biology' | 'geology';
+  title: string;
+  fact: string;
+  sourceUrl: string;
+  sourceCredit: string;
+  status: FactStatus;
 }
