@@ -15,37 +15,37 @@ export const ARCHETYPES: Record<Archetype, ArchetypeDef> = {
   travel: {
     id: 'travel',
     label: 'Travel',
-    name: 'Trajet',
+    name: 'Travel',
     description: 'Drive rover across rugged planetary terrain to reach designated site coordinates.',
   },
   deploy: {
     id: 'deploy',
     label: 'Deploy',
-    name: 'Déploiement',
+    name: 'Deployment',
     description: 'Unpack, assemble, and anchor hardware, solar panels, antenna arrays, or habitat modules.',
   },
   drill: {
     id: 'drill',
     label: 'Drill',
-    name: 'Forage',
+    name: 'Drilling',
     description: 'Operate rotary percussion drill to extract core samples from beneath the regolith.',
   },
   experiment: {
     id: 'experiment',
     label: 'Experiment',
-    name: 'Expérience',
+    name: 'Experiment',
     description: 'Run scientific analysis, biological tests, or geological spectrometry.',
   },
   repair: {
     id: 'repair',
     label: 'Repair',
-    name: 'Réparation',
+    name: 'Repair',
     description: 'Diagnose equipment faults, replace worn modules, seal micro-leaks, or recalibrate instruments.',
   },
   uplink: {
     id: 'uplink',
     label: 'Uplink',
-    name: 'Liaison',
+    name: 'Uplink',
     description: 'Align high-gain dish, transmit telemetry and science packets back to Earth.',
   },
 };

@@ -156,6 +156,48 @@ export const narrativeDialogues: Record<string, Dialogue> = {
     text: 'Lunar night is here: two freezing Earth weeks without sunlight!',
     once: true,
   },
+  hydroponicsChosen: {
+    id: 'hydroponicsChosen',
+    speaker: 'Nova',
+    expression: 'happy',
+    text: 'Greenhouse active! Fresh salads for everyone, but it needs steady power.',
+    once: true,
+  },
+  reinforcedShieldChosen: {
+    id: 'reinforcedShieldChosen',
+    speaker: 'Nova',
+    expression: 'thinking',
+    text: 'Heavy shields mounted! We are safe from flares, but maneuvers cost more.',
+    once: true,
+  },
+  lowAir: {
+    id: 'lowAir',
+    speaker: 'Nova',
+    expression: 'alert',
+    text: 'Warning! Oxygen reserves are dipping below twenty-five percent. Check life support!',
+    once: false,
+  },
+  lowPower: {
+    id: 'lowPower',
+    speaker: 'Nova',
+    expression: 'alert',
+    text: 'Power alert! Battery cells are critical. Power down heavy tools immediately!',
+    once: false,
+  },
+  lowHealth: {
+    id: 'lowHealth',
+    speaker: 'Nova',
+    expression: 'worried',
+    text: 'Medical alert! Crew stamina is exhausted. Provide rest and medical treatment!',
+    once: false,
+  },
+  lowFood: {
+    id: 'lowFood',
+    speaker: 'Nova',
+    expression: 'worried',
+    text: 'Rations running low! Food stores are nearly empty. Harvest crops soon!',
+    once: false,
+  },
   firstWin: {
     id: 'firstWin',
     speaker: 'Nova',
@@ -170,7 +212,73 @@ export const narrativeDialogues: Record<string, Dialogue> = {
     text: 'We lost this mission, but astronauts learn from every failure.',
     once: true,
   },
+  firstLossAir: {
+    id: 'firstLossAir',
+    speaker: 'Nova',
+    expression: 'worried',
+    text: 'Life support ran out of air. Space suits need oxygen management, Commander!',
+    once: true,
+  },
+  firstLossPower: {
+    id: 'firstLossPower',
+    speaker: 'Nova',
+    expression: 'worried',
+    text: 'Batteries drained completely. Without electricity, outpost systems stop. We will recharge!',
+    once: true,
+  },
+  firstLossHealth: {
+    id: 'firstLossHealth',
+    speaker: 'Nova',
+    expression: 'worried',
+    text: 'The crew was too injured to continue. Health and safety come first!',
+    once: true,
+  },
+  firstLossFood: {
+    id: 'firstLossFood',
+    speaker: 'Nova',
+    expression: 'worried',
+    text: 'We ran out of emergency food. Astronauts need calories to explore space!',
+    once: true,
+  },
+  firstBadge: {
+    id: 'firstBadge',
+    speaker: 'Nova',
+    expression: 'proud',
+    text: 'Incredible work! You earned your very first NASA mission badge, Commander!',
+    once: true,
+  },
+  firstRankUp: {
+    id: 'firstRankUp',
+    speaker: 'Nova',
+    expression: 'proud',
+    text: 'Promotion approved! You earned enough XP to reach a brand new rank!',
+    once: true,
+  },
+  firstStreak: {
+    id: 'firstStreak',
+    speaker: 'Nova',
+    expression: 'happy',
+    text: 'Three days in a row! Daily training unlocked your streak XP bonus!',
+    once: true,
+  },
 };
+
+/** Helper to retrieve cause-specific or fallback first loss dialogue */
+export function getLossDialogue(cause?: 'air' | 'power' | 'health' | 'food'): Dialogue {
+  if (cause === 'air') return narrativeDialogues.firstLossAir!;
+  if (cause === 'power') return narrativeDialogues.firstLossPower!;
+  if (cause === 'health') return narrativeDialogues.firstLossHealth!;
+  if (cause === 'food') return narrativeDialogues.firstLossFood!;
+  return narrativeDialogues.firstLoss!;
+}
+
+/** Helper to retrieve meter warning dialogue */
+export function getLowMeterDialogue(meter: 'air' | 'power' | 'health' | 'food'): Dialogue {
+  if (meter === 'air') return narrativeDialogues.lowAir!;
+  if (meter === 'power') return narrativeDialogues.lowPower!;
+  if (meter === 'health') return narrativeDialogues.lowHealth!;
+  return narrativeDialogues.lowFood!;
+}
 
 /** All dialogues index */
 export const dialogues: Dialogue[] = [
