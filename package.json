@@ -27,12 +27,13 @@
     "next": "bash scripts/next-task.sh"
   },
   "dependencies": {
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.2",
     "next": "15.5.29",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "three": "0.170.0",
-    "@react-three/fiber": "9.8.2",
-    "@react-three/drei": "10.7.9"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
