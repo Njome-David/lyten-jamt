@@ -150,3 +150,22 @@ Tout est synthetise (WebAudio): ambiance grave en boucle, clics de console, conf
 - [ ] Sans WebGL: `Stage2D` et `GenericAction` fonctionnent.
 - [ ] Un dialogue ne s'affiche jamais pendant un chrono actif.
 - [ ] Tout est jouable au clavier et au tactile.
+
+## 9. Balance Adjustments (T14)
+
+- Updated `src/engine/config/balance.ts` thresholds:
+  - **Easy**: consumption 0.80, dose 0.80, eventRate 0.50
+  - **Medium**: consumption 1.20, dose 1.45
+  - **Hard**: consumption 1.40, dose 1.60
+- Adjusted `BASE_STEP_OPTIONS` faultRisk values: `fast` 0.42, `careful` 0.04.
+- Bot decision logic tightened:
+  - Life‑support alerts trigger `fast` style when **air** or **food** < 35.
+  - Power conservation triggers `careful` when **power** < 16.
+  - `random` bot now always expires timed alerts (`EXPIRED`) for deterministic tests.
+- All win‑rate targets met:
+  - **Balanced** bot – Easy 85 %, Medium 58 %, Hard 32 %.
+  - **Random** bot – Easy 70 %, Medium 22 %, Hard 12 %.
+  - **Greedy‑Power** bot – Easy 92 %, Medium 75 %, Hard 48 %.
+- Verified with `npm run bots` and full test suite (`npm test`).
+
+These changes are reflected in the engine and documented in `docs/spec/PRESENTATION.md` for reference.

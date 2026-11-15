@@ -12,3 +12,4 @@ export * from './events';
 export * from './scoring';
 export * from './playback';
 export * from './reducer';
+export * from './bots';

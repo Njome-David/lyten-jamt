@@ -61,6 +61,10 @@ export function createFlareAlert(
   const timed = isX && canBeTimed;
   const durationSec = timed ? DIFFICULTY_CONFIG[difficulty].timerSec : 0;
 
+  // Major solar storm radiation multiplier (M-class: ~6.0x, X-class: ~12x)
+  const stormDoseMultiplier = isX ? 12.0 : 6.0;
+  const spikeDose = Math.round(baseDose * stormDoseMultiplier);
+
   const choices: [AlertChoiceSpec, AlertChoiceSpec, AlertChoiceSpec] = [
     {
       id: 'A',
@@ -91,7 +95,7 @@ export function createFlareAlert(
     timed,
     durationSec,
     flare,
-    baseDoseThisTurn: baseDose,
+    baseDoseThisTurn: spikeDose,
     choices,
   };
 }
@@ -157,7 +161,7 @@ export function createFaultAlert(): AlertSpec {
     {
       id: 'C',
       label: 'Ignore & bypass',
-      summary: 'Health -4, step continues',
+      summary: 'Health -6, step continues',
       tradeoffTag: 'CREW STRAIN, NO DELAY',
     },
   ];

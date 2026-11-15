@@ -277,11 +277,11 @@ export const resolveStep: ResolveStepFn = (
         nextState.meters.health = clampGauge(
           nextState.meters.health - baseDose * 0.4
         );
+        nextState.stepIndex = Math.max(0, nextState.stepIndex - 1);
         notes.push('Crew sheltered: step paused to protect astronauts.');
       } else {
         // C or EXPIRED
         nextState.meters.health = clampGauge(nextState.meters.health - baseDose);
-        nextState.stepIndex += 1;
         notes.push(
           isExpired
             ? 'Alert timed out! Full radiation exposure taken.'
@@ -308,16 +308,17 @@ export const resolveStep: ResolveStepFn = (
     } else if (alert.kind === 'fault') {
       if (choice === 'A') {
         nextState.meters.power = clampGauge(nextState.meters.power - 8);
-        notes.push('Immediate hardware overhaul executed.');
+        nextState.stepIndex = Math.max(0, nextState.stepIndex - 1);
+        notes.push('Immediate hardware overhaul executed: step paused.');
       } else if (choice === 'B') {
         nextState.meters.power = clampGauge(nextState.meters.power - 3);
         nextState.flags.extraFaultRisk += 0.1;
         notes.push('Temporary software bypass patched.');
       } else {
         // C or EXPIRED
-        nextState.meters.health = clampGauge(nextState.meters.health - 4);
-        nextState.stepIndex += 1;
-        notes.push('Fault ignored: astronaut strain incurred.');
+        nextState.meters.power = clampGauge(nextState.meters.power - 6);
+        nextState.meters.health = clampGauge(nextState.meters.health - 8);
+        notes.push('Fault ignored: electrical short and astronaut strain incurred.');
       }
     }
 
@@ -362,6 +363,9 @@ export const resolveStep: ResolveStepFn = (
     // Track low power consecutive turns
     if (nextState.meters.power <= 0) {
       nextState.lowPowerTurns += 1;
+      // Complete power failure strains life support
+      nextState.meters.air = clampGauge(nextState.meters.air - 12);
+      nextState.meters.health = clampGauge(nextState.meters.health - 6);
     } else {
       nextState.lowPowerTurns = 0;
     }
@@ -407,10 +411,32 @@ export const resolveStep: ResolveStepFn = (
     if (eventKind === 'flare') {
       const cap = DIFFICULTY_CONFIG[nextState.difficulty].flareCap;
       const eligible = getEligibleFlares(solar.pool, cap);
-      selectedFlare =
-        eligible.length > 0
+
+      const hasX = eligible.some((f) => f.classType.toUpperCase().startsWith('X'));
+      const triggerX =
+        cap === 'X' &&
+        !hasX &&
+        rng() < (nextState.difficulty === 'hard' ? 0.75 : 0.50);
+
+      if (triggerX) {
+        selectedFlare = createFallbackFlare('X', rng);
+      } else {
+        const stormEligible = eligible.filter((f) => {
+          const cls = f.classType.toUpperCase();
+          return cls.startsWith('M') || cls.startsWith('X');
+        });
+
+        const preferStorm =
+          (solar.level === 'active' || solar.level === 'stormy') &&
+          stormEligible.length > 0 &&
+          rng() < 0.7;
+
+        selectedFlare = preferStorm
+          ? randChoice(rng, stormEligible)
+          : eligible.length > 0
           ? randChoice(rng, eligible)
           : createFallbackFlare(cap, rng);
+      }
 
       if (selectedFlare) {
         const cls = selectedFlare.classType.toUpperCase();
