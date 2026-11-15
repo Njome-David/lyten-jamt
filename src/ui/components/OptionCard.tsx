@@ -4,6 +4,7 @@
 
 import React from 'react';
 import type { OptionStyle } from '../types';
+import { DataChip } from './DataChip';
 
 export interface OptionCostDeltas {
   power: number;
@@ -19,6 +20,7 @@ export interface OptionCardProps {
   deltas: OptionCostDeltas;
   durationLabel?: string;
   isHovered?: boolean;
+  showDataTags?: boolean;
   onSelect: (style: OptionStyle) => void;
   onHover?: (style: OptionStyle) => void;
   onLeave?: () => void;
@@ -67,6 +69,7 @@ export const OptionCard: React.FC<OptionCardProps> = ({
   deltas,
   durationLabel,
   isHovered = false,
+  showDataTags = false,
   onSelect,
   onHover,
   onLeave,
@@ -170,6 +173,14 @@ export const OptionCard: React.FC<OptionCardProps> = ({
           alignItems: 'center',
         }}
       >
+        {showDataTags && (
+          <DataChip
+            origin="GAME"
+            label="RULE"
+            size="xs"
+            sourceDetail="Calibrated action cost tradeoff"
+          />
+        )}
         {/* Power delta chip */}
         <span
           data-testid="chip-power"

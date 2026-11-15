@@ -3,6 +3,7 @@
 // and optional delta preview tag (+10 / -15).
 
 import React from 'react';
+import { DataChip } from './DataChip';
 
 export type MeterType = 'power' | 'air' | 'health' | 'food';
 
@@ -11,6 +12,7 @@ export interface MeterBarProps {
   value: number; // 0..100
   deltaPreview?: number; // e.g. +10 or -15
   floatingDelta?: number | null; // e.g. -12 during action consequence
+  showDataTag?: boolean;
 }
 
 const METER_CONFIG: Record<
@@ -48,6 +50,7 @@ export const MeterBar: React.FC<MeterBarProps> = ({
   value,
   deltaPreview,
   floatingDelta,
+  showDataTag = false,
 }) => {
   const config = METER_CONFIG[type];
   const clampedValue = Math.max(0, Math.min(100, Math.round(value)));
@@ -78,6 +81,7 @@ export const MeterBar: React.FC<MeterBarProps> = ({
           justifyContent: 'space-between',
           fontSize: 'var(--text-xs, 12px)',
           fontWeight: 700,
+          gap: '6px',
         }}
       >
         <span
@@ -90,6 +94,9 @@ export const MeterBar: React.FC<MeterBarProps> = ({
         >
           <span aria-hidden="true">{config.icon}</span>
           <span>{config.label}</span>
+          {showDataTag && (
+            <DataChip origin="GAME" label="GAME" size="xs" sourceDetail="0-100 scale simulation bar" />
+          )}
         </span>
 
         <span
