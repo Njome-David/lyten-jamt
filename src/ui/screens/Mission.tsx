@@ -22,6 +22,10 @@ export interface MissionProps {
   };
   solarLevel?: 'quiet' | 'active' | 'storm';
   activeAlert?: AlertSpec | null;
+  styleDeltas?: Record<OptionStyle, OptionCostDeltas & { duration: string }>;
+  stepTitle?: string;
+  stepDescription?: string;
+  isExecuting?: boolean;
   onAction: (style: OptionStyle) => void;
   onAlertChoice?: (choiceId: 'A' | 'B' | 'C' | 'EXPIRED') => void;
   onPause: () => void;
@@ -59,6 +63,10 @@ export const Mission: React.FC<MissionProps> = ({
   meters,
   solarLevel = 'quiet',
   activeAlert,
+  styleDeltas,
+  stepTitle,
+  stepDescription,
+  isExecuting = false,
   onAction,
   onAlertChoice,
   onPause,
@@ -68,12 +76,14 @@ export const Mission: React.FC<MissionProps> = ({
   const [hoveredStyle, setHoveredStyle] = useState<OptionStyle | null>(null);
   const [isDataLoupeActive, setIsDataLoupeActive] = useState(false);
 
+  const activeDeltas = styleDeltas ?? STYLE_DELTAS;
+
   // Active preview deltas based on hovered card
   const deltaPreviews: Partial<Record<MeterType, number>> | undefined = hoveredStyle
     ? {
-        power: STYLE_DELTAS[hoveredStyle].power,
-        air: STYLE_DELTAS[hoveredStyle].air,
-        food: STYLE_DELTAS[hoveredStyle].food,
+        power: activeDeltas[hoveredStyle].power,
+        air: activeDeltas[hoveredStyle].air,
+        food: activeDeltas[hoveredStyle].food,
       }
     : undefined;
 
@@ -126,6 +136,35 @@ export const Mission: React.FC<MissionProps> = ({
           boxSizing: 'border-box',
         }}
       >
+        {stepTitle && (
+          <div style={{ marginBottom: '10px' }}>
+            <h3
+              data-testid="mission-step-title"
+              style={{
+                margin: '0 0 4px 0',
+                fontSize: '16px',
+                fontWeight: 800,
+                color: 'var(--power, #ffd24a)',
+                letterSpacing: '0.02em',
+              }}
+            >
+              Étape {stepIndex}: {stepTitle}
+            </h3>
+            {stepDescription && (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '13px',
+                  color: 'var(--ink-dim, #94a3b8)',
+                  lineHeight: 1.4,
+                }}
+              >
+                {stepDescription}
+              </p>
+            )}
+          </div>
+        )}
+
         <div
           style={{
             display: 'flex',
@@ -163,13 +202,15 @@ export const Mission: React.FC<MissionProps> = ({
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: '12px',
+            opacity: isExecuting ? 0.6 : 1,
+            pointerEvents: isExecuting ? 'none' : 'auto',
           }}
         >
           <OptionCard
             styleType="fast"
             shortcutKey="1"
-            deltas={STYLE_DELTAS.fast}
-            durationLabel={STYLE_DELTAS.fast.duration}
+            deltas={activeDeltas.fast}
+            durationLabel={activeDeltas.fast.duration}
             isHovered={hoveredStyle === 'fast'}
             onSelect={onAction}
             onHover={setHoveredStyle}
@@ -179,8 +220,8 @@ export const Mission: React.FC<MissionProps> = ({
           <OptionCard
             styleType="balanced"
             shortcutKey="2"
-            deltas={STYLE_DELTAS.balanced}
-            durationLabel={STYLE_DELTAS.balanced.duration}
+            deltas={activeDeltas.balanced}
+            durationLabel={activeDeltas.balanced.duration}
             isHovered={hoveredStyle === 'balanced'}
             onSelect={onAction}
             onHover={setHoveredStyle}
@@ -190,8 +231,8 @@ export const Mission: React.FC<MissionProps> = ({
           <OptionCard
             styleType="careful"
             shortcutKey="3"
-            deltas={STYLE_DELTAS.careful}
-            durationLabel={STYLE_DELTAS.careful.duration}
+            deltas={activeDeltas.careful}
+            durationLabel={activeDeltas.careful.duration}
             isHovered={hoveredStyle === 'careful'}
             onSelect={onAction}
             onHover={setHoveredStyle}

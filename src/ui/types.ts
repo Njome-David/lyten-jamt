@@ -1,3 +1,6 @@
+import type { RunState, RunScore, AlertSpec, StepPlayback } from '../engine/types';
+import type { CinematicProps } from '../three/cinematics/types';
+
 export type ScreenId =
   | 'title'
   | 'destination'
@@ -31,6 +34,10 @@ export interface UIState {
   paused: boolean;
   stepIndex: number;
   totalSteps: number;
+  runState?: RunState | null;
+  runScore?: RunScore | null;
+  activeAlert?: AlertSpec | null;
+  cinematic?: CinematicProps | null;
 }
 
 export type UIAction =
@@ -42,4 +49,9 @@ export type UIAction =
   | { type: 'UPDATE_LOADOUT'; patch: Partial<LoadoutConfig> }
   | { type: 'TOGGLE_PAUSE' }
   | { type: 'NEXT_STEP' }
+  | { type: 'START_MISSION'; runState: RunState }
+  | { type: 'RESOLVE_STEP_SUCCESS'; runState: RunState; alert?: AlertSpec | null; playback?: StepPlayback }
+  | { type: 'SET_CINEMATIC'; cinematic: CinematicProps | null }
+  | { type: 'RESOLVE_ALERT'; runState: RunState }
+  | { type: 'FINISH_MISSION'; score: RunScore }
   | { type: 'RESET' };

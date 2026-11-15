@@ -2,6 +2,7 @@
    Determine le niveau d'activite solaire ('calm' | 'active' | 'stormy')
    et les modificateurs de dose de radiation associes. */
 import type { DonkiFlare, Snapshot, SolarLevel } from './types';
+import type { Flare, SolarContext } from '../engine/types';
 import recentFlaresSnapshot from './snapshots/donki-flr-recent.json';
 import may2024FlaresSnapshot from './snapshots/donki-flr-may2024-a.json';
 
@@ -88,5 +89,38 @@ export function getMay2024StormData(): { status: SolarStatus; flares: DonkiFlare
   return {
     status: getSolarStatus(flares),
     flares,
+  };
+}
+
+/**
+ * Build SolarContext for simulation engine based on real DONKI flare snapshots.
+ */
+export function getSolarContext(mode: 'recent' | 'may2024' = 'recent'): SolarContext {
+  const snapshot = (
+    mode === 'may2024' ? may2024FlaresSnapshot : recentFlaresSnapshot
+  ) as unknown as Snapshot<DonkiFlare[]>;
+  const flares = snapshot.data;
+  const status = getSolarStatus(flares);
+
+  const pool: Flare[] = flares.map((f) => ({
+    id: f.flrID,
+    classType: f.classType,
+    peakTime: f.peakTime,
+    activeRegionNum: f.activeRegionNum ?? null,
+    link: f.link,
+  }));
+
+  return {
+    level: status.level,
+    pool,
+    provenance: {
+      source: snapshot.meta.source,
+      url: snapshot.meta.url,
+      fetchedAt: snapshot.meta.fetchedAt,
+      isLive: snapshot.meta.isLive,
+      credit: snapshot.meta.credit,
+      note: snapshot.meta.note,
+    },
+    mode,
   };
 }

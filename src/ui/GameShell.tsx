@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useReducer, useEffect, useCallback } from 'react';
-import type { UIState, UIAction, Body, SiteId, MissionTemplateId, Difficulty, LoadoutConfig } from './types';
-import { Stage2D } from './components/Stage2D';
+import React, { useReducer, useEffect, useCallback, useMemo, useState } from 'react';
+import type { UIState, UIAction, Body, SiteId, MissionTemplateId, Difficulty, LoadoutConfig, OptionStyle } from './types';
+import { StageCanvas } from '../three/stage/StageCanvas';
+import type { StageMode } from '../three/stage/types';
 import DialogBox from './dialog/DialogBox';
 import { PauseOverlay } from './components/PauseOverlay';
 import { useDialogRunner } from './dialog/useDialogRunner';
@@ -16,6 +17,10 @@ import {
   Mission,
   Debrief,
 } from './screens';
+import { createRun, resolveStep, previewOption, scoreRun } from '../engine';
+import { getSolarContext } from '../data/solar';
+import { MISSIONS } from '../content/missions';
+import type { OptionCostDeltas } from './components/OptionCard';
 
 const INITIAL_LOADOUT: LoadoutConfig = {
   crew: 3,
@@ -34,6 +39,10 @@ export const INITIAL_UI_STATE: UIState = {
   paused: false,
   stepIndex: 1,
   totalSteps: 6,
+  runState: null,
+  runScore: null,
+  activeAlert: null,
+  cinematic: null,
 };
 
 export function uiReducer(state: UIState, action: UIAction): UIState {
@@ -74,6 +83,48 @@ export function uiReducer(state: UIState, action: UIAction): UIState {
       return { ...state, stepIndex: state.stepIndex + 1 };
     }
 
+    case 'START_MISSION':
+      return {
+        ...state,
+        screen: 'mission',
+        runState: action.runState,
+        stepIndex: 1,
+        totalSteps: action.runState.totalSteps,
+        activeAlert: null,
+        runScore: null,
+        paused: false,
+      };
+
+    case 'RESOLVE_STEP_SUCCESS':
+      return {
+        ...state,
+        runState: action.runState,
+        activeAlert: action.alert ?? null,
+        stepIndex: Math.min(state.totalSteps, action.runState.stepIndex + 1),
+      };
+
+    case 'SET_CINEMATIC':
+      return {
+        ...state,
+        cinematic: action.cinematic,
+      };
+
+    case 'RESOLVE_ALERT':
+      return {
+        ...state,
+        runState: action.runState,
+        activeAlert: null,
+      };
+
+    case 'FINISH_MISSION':
+      return {
+        ...state,
+        screen: 'debrief',
+        runScore: action.score,
+        activeAlert: null,
+        cinematic: null,
+      };
+
     case 'RESET':
       return { ...INITIAL_UI_STATE };
 
@@ -97,14 +148,133 @@ export function GameShell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [state, dispatch] = useReducer(uiReducer, INITIAL_UI_STATE);
+  const [isExecuting, setIsExecuting] = useState(false);
 
-  // Calculate mock meters based on step progress
-  const meters = {
+  // Real NASA DONKI solar weather context
+  const solarContext = useMemo(() => getSolarContext('recent'), []);
+
+  // Current mission definition and step
+  const missionKey = `${state.destination}-${state.missionId}`;
+  const missionDef = MISSIONS[missionKey] ?? MISSIONS['moon-relay'];
+  const currentStep = missionDef?.steps[Math.min(missionDef.steps.length - 1, state.stepIndex - 1)];
+
+  // Live simulation meters (from engine if started, otherwise safe nominal fallback)
+  const meters = state.runState?.meters ?? {
     power: Math.max(20, 100 - (state.stepIndex - 1) * 12),
     air: Math.max(30, 95 - (state.stepIndex - 1) * 8),
     health: Math.max(40, 100 - (state.stepIndex - 1) * 5),
     food: Math.max(25, 90 - (state.stepIndex - 1) * 10),
   };
+
+  // Live calculated deltas for the 3 option cards via engine's previewOption
+  const styleDeltas = useMemo(() => {
+    if (!currentStep) return undefined;
+    const baseRun =
+      state.runState ??
+      createRun(
+        {
+          seed: 42,
+          body: state.destination,
+          missionId: state.missionId,
+          siteId: state.site,
+          difficulty: state.difficulty,
+          loadout: state.loadout,
+          totalSteps: 6,
+        },
+        solarContext
+      );
+
+    const styles: OptionStyle[] = ['fast', 'balanced', 'careful'];
+    const res = {} as Record<OptionStyle, OptionCostDeltas & { duration: string }>;
+    styles.forEach((st) => {
+      const p = previewOption(baseRun, currentStep.archetype, st, solarContext);
+      res[st] = {
+        power: p.netPower,
+        air: p.netAir,
+        food: p.netFood,
+        faultRisk: p.faultRisk,
+        duration: st === 'fast' ? '2.5s' : st === 'balanced' ? '3.5s' : '5.0s',
+      };
+    });
+    return res;
+  }, [state.runState, currentStep, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext]);
+
+  const handleLaunch = useCallback(() => {
+    const run = createRun(
+      {
+        seed: 42,
+        body: state.destination,
+        missionId: state.missionId,
+        siteId: state.site,
+        difficulty: state.difficulty,
+        loadout: state.loadout,
+        totalSteps: 6,
+      },
+      solarContext
+    );
+    dispatch({ type: 'START_MISSION', runState: run });
+  }, [state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext]);
+
+  const handleAction = useCallback(
+    (style: OptionStyle) => {
+      if (isExecuting) return;
+      setIsExecuting(true);
+
+      const activeRun =
+        state.runState ??
+        createRun(
+          {
+            seed: 42,
+            body: state.destination,
+            missionId: state.missionId,
+            siteId: state.site,
+            difficulty: state.difficulty,
+            loadout: state.loadout,
+            totalSteps: 6,
+          },
+          solarContext
+        );
+
+      const res = resolveStep(activeRun, { type: 'CHOOSE_OPTION', style }, solarContext);
+      const archetype = currentStep?.archetype ?? 'travel';
+
+      dispatch({
+        type: 'SET_CINEMATIC',
+        cinematic: {
+          archetype,
+          style,
+          onComplete: () => {
+            dispatch({ type: 'SET_CINEMATIC', cinematic: null });
+            setIsExecuting(false);
+
+            if (res.state.status !== 'running') {
+              const score = scoreRun(res.state);
+              dispatch({ type: 'FINISH_MISSION', score });
+            } else if (res.alert) {
+              dispatch({ type: 'RESOLVE_STEP_SUCCESS', runState: res.state, alert: res.alert });
+            } else {
+              dispatch({ type: 'RESOLVE_STEP_SUCCESS', runState: res.state });
+            }
+          },
+        },
+      });
+    },
+    [isExecuting, state.runState, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext, currentStep]
+  );
+
+  const handleAlertChoice = useCallback(
+    (choice: 'A' | 'B' | 'C' | 'EXPIRED') => {
+      if (!state.runState) return;
+      const res = resolveStep(state.runState, { type: 'ALERT_CHOICE', choice }, solarContext);
+      if (res.state.status !== 'running') {
+        const score = scoreRun(res.state);
+        dispatch({ type: 'FINISH_MISSION', score });
+      } else {
+        dispatch({ type: 'RESOLVE_ALERT', runState: res.state });
+      }
+    },
+    [state.runState, solarContext]
+  );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -205,7 +375,7 @@ export function GameShell() {
         case 'loadout':
           if (key === ' ' || key === '1' || key === 'enter') {
             e.preventDefault();
-            dispatch({ type: 'NAVIGATE', screen: 'mission' });
+            handleLaunch();
           } else if (key === 'b' || key === 'escape') {
             e.preventDefault();
             dispatch({ type: 'NAVIGATE', screen: 'difficulty' });
@@ -213,9 +383,15 @@ export function GameShell() {
           break;
 
         case 'mission':
-          if (key === '1' || key === '2' || key === '3') {
+          if (key === '1') {
             e.preventDefault();
-            dispatch({ type: 'NEXT_STEP' });
+            handleAction('fast');
+          } else if (key === '2') {
+            e.preventDefault();
+            handleAction('balanced');
+          } else if (key === '3') {
+            e.preventDefault();
+            handleAction('careful');
           }
           break;
 
@@ -227,13 +403,20 @@ export function GameShell() {
           break;
       }
     },
-    [state, isDialogActive]
+    [state, isDialogActive, handleLaunch, handleAction]
   );
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  const stageMode: StageMode =
+    state.screen === 'missions'
+      ? 'destination'
+      : state.screen === 'difficulty'
+      ? 'sites'
+      : state.screen;
 
   return (
     <div
@@ -246,11 +429,12 @@ export function GameShell() {
         background: 'var(--bg)',
       }}
     >
-      {/* Persistent Visual Stage (Stage2D fallback) */}
-      <Stage2D
+      {/* Persistent 3D Visual Stage with integrated 2D Fallback */}
+      <StageCanvas
+        mode={stageMode}
         body={state.destination}
         site={state.site}
-        screen={state.screen}
+        cinematic={state.cinematic ?? undefined}
       />
 
       {/* Screen Overlay Content */}
@@ -299,7 +483,7 @@ export function GameShell() {
           <Loadout
             loadout={state.loadout}
             onUpdate={(patch: Partial<LoadoutConfig>) => dispatch({ type: 'UPDATE_LOADOUT', patch })}
-            onLaunch={() => dispatch({ type: 'NAVIGATE', screen: 'mission' })}
+            onLaunch={handleLaunch}
             onBack={() => dispatch({ type: 'NAVIGATE', screen: 'difficulty' })}
           />
         )}
@@ -309,7 +493,13 @@ export function GameShell() {
             stepIndex={state.stepIndex}
             totalSteps={state.totalSteps}
             meters={meters}
-            onAction={(_style) => dispatch({ type: 'NEXT_STEP' })}
+            styleDeltas={styleDeltas}
+            stepTitle={currentStep?.title}
+            stepDescription={currentStep?.text}
+            activeAlert={state.activeAlert}
+            isExecuting={isExecuting}
+            onAction={handleAction}
+            onAlertChoice={handleAlertChoice}
             onPause={() => dispatch({ type: 'TOGGLE_PAUSE' })}
           />
         )}
@@ -319,6 +509,7 @@ export function GameShell() {
             destination={state.destination}
             site={state.site}
             missionId={state.missionId}
+            score={state.runScore}
             onRestart={() => dispatch({ type: 'RESET' })}
           />
         )}

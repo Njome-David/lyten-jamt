@@ -2,15 +2,22 @@
 
 import React from 'react';
 import type { Body, SiteId, MissionTemplateId } from '../types';
+import type { RunScore } from '../../engine/types';
 
 interface DebriefProps {
   destination: Body;
   site: SiteId;
   missionId: MissionTemplateId;
+  score?: RunScore | null;
   onRestart: () => void;
 }
 
-export function Debrief({ destination, site, missionId, onRestart }: DebriefProps) {
+export function Debrief({ destination, site, missionId, score, onRestart }: DebriefProps) {
+  const starsCount = score?.stars ?? 3;
+  const starsDisplay = '⭐'.repeat(starsCount) || '🌑';
+  const xpTotal = score?.xp.total ?? 350;
+  const isWon = starsCount > 0;
+
   return (
     <div
       data-testid="screen-debrief"
@@ -32,22 +39,22 @@ export function Debrief({ destination, site, missionId, onRestart }: DebriefProp
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-lg, 20px)',
           padding: '32px 28px',
-          maxWidth: '540px',
+          maxWidth: '560px',
           width: '100%',
           boxShadow: 'var(--shadow-card)',
           backdropFilter: 'blur(12px)',
         }}
       >
         <div style={{ fontSize: '42px', marginBottom: '8px' }} aria-hidden="true">
-          🏆
+          {isWon ? '🏆' : '⚠️'}
         </div>
 
         <h2 style={{ fontSize: '28px', margin: '0 0 8px 0', fontWeight: 800 }}>
-          Mission Accomplished!
+          {isWon ? 'Mission Accomplished!' : 'Mission Debrief: Recovery Needed'}
         </h2>
 
         <p style={{ fontSize: '15px', color: 'var(--ink-dim)', margin: '0 0 20px 0' }}>
-          Mission debrief for {destination.toUpperCase()} outpost at {site.toUpperCase()}
+          {score?.causeSummary ?? `Mission debrief for ${destination.toUpperCase()} outpost at ${site.toUpperCase()}`}
         </p>
 
         {/* Evaluation Summary */}
@@ -57,24 +64,72 @@ export function Debrief({ destination, site, missionId, onRestart }: DebriefProp
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius)',
             padding: '16px',
-            marginBottom: '24px',
+            marginBottom: '20px',
             display: 'flex',
             justifyContent: 'space-around',
           }}
         >
           <div>
             <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Rating</div>
-            <div style={{ fontSize: '20px', color: 'var(--power)', fontWeight: 800 }}>⭐⭐⭐</div>
+            <div data-testid="debrief-stars" style={{ fontSize: '20px', color: 'var(--power)', fontWeight: 800 }}>
+              {starsDisplay}
+            </div>
           </div>
           <div>
-            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Mission Type</div>
-            <div style={{ fontSize: '15px', fontWeight: 700, textTransform: 'capitalize' }}>{missionId}</div>
+            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Mission</div>
+            <div style={{ fontSize: '15px', fontWeight: 700, textTransform: 'capitalize' }}>
+              {missionId}
+            </div>
           </div>
           <div>
-            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Survival</div>
-            <div style={{ fontSize: '15px', color: 'var(--success)', fontWeight: 700 }}>100% Nominal</div>
+            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>XP Earned</div>
+            <div data-testid="debrief-xp" style={{ fontSize: '18px', fontWeight: 800, color: 'var(--accent, #60a5fa)' }}>
+              +{xpTotal} XP
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '12px', color: 'var(--ink-dim)' }}>Status</div>
+            <div
+              style={{
+                fontSize: '15px',
+                color: isWon ? 'var(--success)' : 'var(--danger)',
+                fontWeight: 700,
+              }}
+            >
+              {isWon ? 'Nominal' : 'Critical'}
+            </div>
           </div>
         </div>
+
+        {/* Real Incidents List if any */}
+        {score?.incidents && score.incidents.length > 0 && (
+          <div
+            style={{
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              borderRadius: 'var(--radius, 12px)',
+              padding: '12px 16px',
+              marginBottom: '20px',
+              textAlign: 'left',
+            }}
+          >
+            <div style={{ fontSize: '12px', fontWeight: 800, color: '#f87171', marginBottom: '6px' }}>
+              INCIDENTS LOGGED [REAL DATA]:
+            </div>
+            <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', color: 'var(--ink-dim)' }}>
+              {score.incidents.map((inc, i) => (
+                <li key={i}>{inc}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Tip for next mission */}
+        {score?.nextTimeTip && (
+          <p style={{ fontSize: '13px', fontStyle: 'italic', color: 'var(--ink-dim)', marginBottom: '24px' }}>
+            💡 {score.nextTimeTip}
+          </p>
+        )}
 
         {/* Restart Action */}
         <button
@@ -95,6 +150,7 @@ export function Debrief({ destination, site, missionId, onRestart }: DebriefProp
             justifyContent: 'center',
             gap: '8px',
             boxShadow: '0 4px 16px rgba(255, 210, 74, 0.3)',
+            cursor: 'pointer',
           }}
         >
           <span aria-hidden="true">🔄</span>
