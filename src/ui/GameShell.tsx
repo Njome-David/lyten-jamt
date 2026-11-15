@@ -528,6 +528,7 @@ export function GameShell() {
         body={state.destination}
         site={state.site}
         cinematic={state.cinematic ?? undefined}
+        onSelectBody={(dest: Body) => dispatch({ type: 'SELECT_DESTINATION', destination: dest })}
       />
 
       {/* Screen Overlay Content */}
@@ -537,6 +538,7 @@ export function GameShell() {
           zIndex: 10,
           width: '100%',
           height: '100%',
+          pointerEvents: 'none',
         }}
       >
         {state.screen === 'title' && (

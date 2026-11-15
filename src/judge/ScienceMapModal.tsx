@@ -3,7 +3,7 @@
 // Details real NASA endpoints (DONKI, OSDR, PDS), bundled snapshots, and REAL vs GAME tags.
 
 import React, { useEffect, useCallback } from 'react';
-import { SCIENTIFIC_FACTS } from '../data/facts';
+import { getVerifiedFacts } from '../data/facts';
 
 export interface ScienceMapModalProps {
   isOpen: boolean;
@@ -384,7 +384,7 @@ export const ScienceMapModal: React.FC<ScienceMapModalProps> = ({ isOpen, onClos
                 gap: '12px',
               }}
             >
-              {SCIENTIFIC_FACTS.map((fact) => (
+              {getVerifiedFacts().map((fact) => (
                 <div
                   key={fact.id}
                   data-testid={`fact-card-${fact.id}`}
