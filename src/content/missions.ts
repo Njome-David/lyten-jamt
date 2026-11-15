@@ -1,6 +1,6 @@
 // src/content/missions.ts
 // Mission definitions and data for lunar and martian outpost missions.
-// Follows SPEC.md section 5.1 and docs/fr/02-roadmap.md (T07, T17).
+// Follows SPEC.md section 5.1 and docs/fr/02-roadmap.md (T07, T17, T18).
 
 import type { Body, MissionTemplateId } from '../engine/types';
 import { validateMission, type Mission } from './schema';
@@ -264,7 +264,7 @@ export const MISSIONS: Record<string, Mission> = {
   }),
 
   // =========================================================================
-  // Mars Missions (Relay established in T07)
+  // Mars Missions (5 complete missions - T18)
   // =========================================================================
   'mars-relay': validateMission({
     id: 'mars-relay',
@@ -312,6 +312,207 @@ export const MISSIONS: Record<string, Mission> = {
         archetype: 'uplink',
         title: 'First Transmission',
         text: 'Transmit weather logs and habitat telemetry back to Earth through the Deep Space Network.',
+      },
+    ],
+  }),
+
+  'mars-core': validateMission({
+    id: 'mars-core',
+    templateId: 'core',
+    body: 'mars',
+    title: 'Mars Core Samples',
+    objective:
+      'Drill deep into ancient Jezero river delta strata to collect core samples preserving signs of ancient water.',
+    whyItMatters:
+      'Sedimentary clay cores contain preserved chemical signatures showing whether early Mars was once warm and habitable.',
+    enabled: true,
+    steps: [
+      {
+        stepIndex: 1,
+        archetype: 'travel',
+        title: 'Journey to Delta Fan',
+        text: 'Steer the heavy science rover up the steep layered sandstone escarpment of the ancient river delta.',
+      },
+      {
+        stepIndex: 2,
+        archetype: 'drill',
+        title: 'Anchor Rotary Drill',
+        text: 'Deploy stabilizer legs into hard bedrock and prepare the hollow coring bit for deep percussive drilling.',
+      },
+      {
+        stepIndex: 3,
+        archetype: 'drill',
+        title: 'Collect Clay Core',
+        text: 'Bore three meters beneath the surface and seal layered mudstone cores inside airtight hermetic titanium tubes.',
+      },
+      {
+        stepIndex: 4,
+        archetype: 'experiment',
+        title: 'Raman Spectrometry',
+        text: 'Scan extracted cores with ultraviolet lasers to identify organic molecules and hydrated sulfate minerals.',
+      },
+      {
+        stepIndex: 5,
+        archetype: 'repair',
+        title: 'Replace Core Chuck',
+        text: 'Clean abrasive Martian grit from the chuck mechanism and replace the dull tungsten drill head.',
+      },
+      {
+        stepIndex: 6,
+        archetype: 'uplink',
+        title: 'Beam Mineralogy Maps',
+        text: 'Upload spectral mineralogy scans and core density profiles to scientists at the Jet Propulsion Laboratory.',
+      },
+    ],
+  }),
+
+  'mars-seismic': validateMission({
+    id: 'mars-seismic',
+    templateId: 'seismic',
+    body: 'mars',
+    title: 'Marsquake Station',
+    objective:
+      'Deploy a sensitive seismometer dome on Mars to detect marsquakes and map the crust and liquid core.',
+    whyItMatters:
+      'Seismic waves from marsquakes reveal the thickness of the Martian crust and whether volcanic magma remains active.',
+    enabled: true,
+    steps: [
+      {
+        stepIndex: 1,
+        archetype: 'travel',
+        title: 'Navigate to Plain',
+        text: 'Drive past jagged volcanic basalt boulders to find flat, unbroken ground away from turbulent wind corridors.',
+      },
+      {
+        stepIndex: 2,
+        archetype: 'deploy',
+        title: 'Lower Sensor Sphere',
+        text: 'Gently lower the vacuum-sealed sensor sphere onto the ground and cover it with a protective wind dome.',
+      },
+      {
+        stepIndex: 3,
+        archetype: 'repair',
+        title: 'Realign Leveling Leg',
+        text: 'Adjust an uneven motorized tripod foot to ensure sensor pendulums balance perfectly level within one degree.',
+      },
+      {
+        stepIndex: 4,
+        archetype: 'experiment',
+        title: 'Atmospheric Noise',
+        text: 'Record wind hum and thermal ground expansion to filter background vibrations out of seismic recordings.',
+      },
+      {
+        stepIndex: 5,
+        archetype: 'experiment',
+        title: 'Detect Cerberus Tremor',
+        text: 'Capture low-frequency seismic waves originating hundreds of kilometers away in the active Cerberus Fossae fault.',
+      },
+      {
+        stepIndex: 6,
+        archetype: 'uplink',
+        title: 'Relay Wave Telemetry',
+        text: 'Transmit ground displacement waveforms to orbital satellites for immediate relay to the Mars seismic network.',
+      },
+    ],
+  }),
+
+  'mars-mapper': validateMission({
+    id: 'mars-mapper',
+    templateId: 'mapper',
+    body: 'mars',
+    title: 'Mars Water Mapper',
+    objective:
+      'Scan the Martian surface with radar to map underground glaciers and brine deposits for base life support.',
+    whyItMatters:
+      'Subsurface ice sheets provide essential drinking water, fuel feedstock, and clues about the planet past climate cycles.',
+    enabled: true,
+    steps: [
+      {
+        stepIndex: 1,
+        archetype: 'deploy',
+        title: 'Unfold Radar Antenna',
+        text: 'Extend the ten-meter ground-penetrating radar boom from the rover roof and run diagnostic hardware calibrations.',
+      },
+      {
+        stepIndex: 2,
+        archetype: 'travel',
+        title: 'Survey North Ridge',
+        text: 'Trek across red sand ridges and frost-dusted boulders toward the high southern crater rim.',
+      },
+      {
+        stepIndex: 3,
+        archetype: 'experiment',
+        title: 'Sounding Pulse Test',
+        text: 'Send deep radar pulses into the regolith to measure dielectric reflections from buried ice layers.',
+      },
+      {
+        stepIndex: 4,
+        archetype: 'travel',
+        title: 'Traverse Gully Slope',
+        text: 'Drive slowly along steep gully walls where recent slope streaks suggest seasonal underground fluid movement.',
+      },
+      {
+        stepIndex: 5,
+        archetype: 'experiment',
+        title: 'Map Pure Ice Sheet',
+        text: 'Analyze radar echo reflections confirming a twenty-meter-thick sheet of ninety-percent pure water ice.',
+      },
+      {
+        stepIndex: 6,
+        archetype: 'uplink',
+        title: 'Uplink Hydrology Chart',
+        text: 'Transmit subsurface ice depth contours and coordinates to Mission Control and future landing site planners.',
+      },
+    ],
+  }),
+
+  'mars-garden': validateMission({
+    id: 'mars-garden',
+    templateId: 'garden',
+    body: 'mars',
+    title: 'Mars Garden',
+    objective:
+      'Cultivate experimental crops in pressurized Martian greenhouses using treated regolith to test self-sufficient food production.',
+    whyItMatters:
+      'Growing fresh plants on Mars is vital to feed crews and regenerate breathable oxygen during multi-year expeditions.',
+    enabled: true,
+    osdrStudyId: 'OSD-7',
+    steps: [
+      {
+        stepIndex: 1,
+        archetype: 'deploy',
+        title: 'Inflate Habitat Dome',
+        text: 'Pressurize the geodesic greenhouse dome with filtered carbon dioxide and deploy automated soil irrigation trays.',
+      },
+      {
+        stepIndex: 2,
+        archetype: 'repair',
+        title: 'Rinse Perchlorates',
+        text: 'Rinse toxic perchlorate salts from crushed basalt regolith using chemical wash filters and clean water.',
+      },
+      {
+        stepIndex: 3,
+        archetype: 'experiment',
+        title: 'Plant Seedling Trays',
+        text: 'Sow genetically resilient Arabidopsis thaliana seeds into enriched regolith beds under dual-wavelength LED grow lights.',
+      },
+      {
+        stepIndex: 4,
+        archetype: 'experiment',
+        title: 'Shoot Elongation Check',
+        text: 'Log camera data measuring hypocotyl growth and leaf chlorophyll production in one-third Earth gravity.',
+      },
+      {
+        stepIndex: 5,
+        archetype: 'repair',
+        title: 'Clear Moisture Valves',
+        text: 'Scrub mineral build-up from moisture recapture condensers to prevent mold on greenhouse walls.',
+      },
+      {
+        stepIndex: 6,
+        archetype: 'uplink',
+        title: 'Stream Agricultural Log',
+        text: 'Upload time-lapse canopy photos, transpiration curves, and genetic adaptation records to NASA OSDR biologists.',
       },
     ],
   }),
