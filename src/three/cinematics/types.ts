@@ -1,5 +1,8 @@
 // src/three/cinematics/types.ts
-import type { Archetype, OptionStyle } from '../../engine/types';
+import type { Archetype, OptionStyle, EventKind, Flare } from '../../engine/types';
+
+export type { EventKind };
+export type OutcomeKind = 'victory' | 'defeat';
 
 /**
  * Standard durations for action options in seconds, as defined in PRESENTATION.md:
@@ -20,9 +23,23 @@ export const STYLE_DURATIONS_MS: Record<OptionStyle, number> = {
   careful: 5000,
 };
 
+/** Standard duration for event interludes (2 to 3 seconds as per PRESENTATION.md 3.1) */
+export const EVENT_DURATION_SEC = 2.5;
+
+/** Standard duration for victory / defeat outcomes */
+export const OUTCOME_DURATION_SEC = 3.5;
+
 export interface CinematicProps {
   /** Action archetype (travel, deploy, drill, experiment, repair, uplink) */
-  archetype: Archetype;
+  archetype?: Archetype;
+  /** Active event kind if an event interlude is playing */
+  event?: EventKind;
+  /** Active outcome kind if mission finished (victory or defeat) */
+  outcome?: OutcomeKind;
+  /** Optional solar flare payload with DONKI metadata */
+  flare?: Flare;
+  /** Whether the shield defense bubble is active (e.g. choice A on solar flare) */
+  shieldActive?: boolean;
   /** Approach style (fast, balanced, careful) */
   style?: OptionStyle;
   /**
@@ -37,6 +54,27 @@ export interface CinematicProps {
   /** Callback fired when the cinematic reaches completion */
   onComplete?: () => void;
   /** Site identifier (moon or mars environment adjustments) */
+  site?: string;
+}
+
+export interface EventCinematicProps {
+  event: EventKind;
+  flare?: Flare;
+  shieldActive?: boolean;
+  progress?: number;
+  duration?: number;
+  speedMultiplier?: number;
+  reducedMotion?: boolean;
+  onComplete?: () => void;
+  site?: string;
+}
+
+export interface OutcomeCinematicProps {
+  outcome: OutcomeKind;
+  progress?: number;
+  duration?: number;
+  reducedMotion?: boolean;
+  onComplete?: () => void;
   site?: string;
 }
 
