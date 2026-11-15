@@ -1,18 +1,86 @@
-/* Design tokens: voir docs/spec/PRESENTATION.md (regles d'interface). Aucune police externe. */
+/* Design tokens: voir docs/spec/PRESENTATION.md et DESIGN.md. Aucune police externe. */
 :root {
   --bg: #05070d;
+  --surface: rgba(14, 21, 37, 0.88);
+  --surface-hover: rgba(24, 35, 60, 0.96);
+  --surface-card: #0d1527;
+  --surface-overlay: rgba(5, 7, 13, 0.82);
   --ink: #eaf1ff;
   --ink-dim: #9fb0cf;
+  --ink-muted: #627293;
+  --border: rgba(159, 176, 207, 0.25);
+  --border-focus: #4fd8ff;
+  --border-active: #ffd24a;
+  --accent: #4fd8ff;
   --power: #ffd24a;
   --air: #4fd8ff;
   --health: #ff6b8b;
   --food: #8be28b;
   --alert: #ff5b3a;
+  --success: #8be28b;
+  --radius-sm: 8px;
   --radius: 14px;
+  --radius-lg: 20px;
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color-scheme: dark;
 }
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 18px; }
-body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 18px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 3px;
+}
+
+/* Touch targets and accessible interactive elements */
+button, [role="button"] {
+  font-family: inherit;
+  color: inherit;
+  min-height: 48px;
+  min-width: 48px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:hover:not(:disabled), [role="button"]:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-focus);
+}
+
+button:active:not(:disabled), [role="button"]:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled, [role="button"][aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
