@@ -61,25 +61,25 @@ export interface DifficultyConfig {
 
 export const DIFFICULTY_CONFIG: Record<Difficulty, DifficultyConfig> = {
   easy: {
-    consume: 0.8,
-    dose: 0.8,
-    eventRate: 0.5,
+    consume: 0.80,
+    dose: 0.80,
+    eventRate: 0.50,
     flareCap: 'M',
     timerSec: 15,
     marsDelayTurns: 1,
   },
   medium: {
-    consume: 1.0,
-    dose: 1.0,
-    eventRate: 0.65,
+    consume: 1.22,
+    dose: 1.45,
+    eventRate: 0.80,
     flareCap: 'X',
     timerSec: 12,
     marsDelayTurns: 2,
   },
   hard: {
-    consume: 1.2,
-    dose: 1.2,
-    eventRate: 0.8,
+    consume: 1.40,
+    dose: 1.60,
+    eventRate: 0.95,
     flareCap: 'X',
     timerSec: 10,
     marsDelayTurns: 3,
@@ -103,10 +103,10 @@ export const INITIAL_METERS_CONFIG: Record<
 export const BASE_STEP_OPTIONS: Record<OptionStyle, StepOptionDef> = {
   fast: {
     style: 'fast',
-    power: -14,
+    power: -16,
     air: -1,
     food: -1,
-    faultRisk: 0.25,
+    faultRisk: 0.42,
     outdoor: true,
   },
   balanced: {
@@ -120,9 +120,9 @@ export const BASE_STEP_OPTIONS: Record<OptionStyle, StepOptionDef> = {
   careful: {
     style: 'careful',
     power: -5,
-    air: -4,
+    air: -7,
     food: -3,
-    faultRisk: 0.05,
+    faultRisk: 0.04,
     outdoor: true,
   },
 };
@@ -146,9 +146,9 @@ export const ARCHETYPE_OUTDOOR: Record<Archetype, boolean> = {
 };
 
 export const BASE_RADIATION_DOSE: Record<SolarLevel, number> = {
-  calm: 1.0,
-  active: 2.5,
-  stormy: 4.0,
+  calm: 1.5,
+  active: 3.5,
+  stormy: 6.0,
 };
 
 export const SHIELD_DOSE_MULTIPLIER: Record<Loadout['shield'], number> = {
