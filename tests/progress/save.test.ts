@@ -1,4 +1,4 @@
-// tests/progress/save.test.ts
+// src/progress/save.test.ts
 // Unit tests for save persistence, validation, corrupt recovery, seen moments, and settings.
 
 import { expect, test, describe, beforeEach } from 'vitest';
@@ -15,7 +15,7 @@ import {
 
 describe('save persistence', () => {
   beforeEach(() => {
-    // Ensure a clean in‑memory store before each test.
+    // Ensure a clean in-memory store before each test.
     resetSave();
   });
 
@@ -34,6 +34,27 @@ describe('save persistence', () => {
     expect(saved).toBe(true);
     const loaded = loadSave();
     expect(loaded).toEqual(original);
+  });
+
+  test('migrates a SaveV1 from before career counters without losing progress', () => {
+    const legacy = {
+      ...createDefaultSave(),
+      xp: 725,
+      streak: { count: 4, lastDay: '2026-11-10', jokerReady: true },
+      stats: { winStreak: 2, pressureWinsClean: 3, welcomeGiven: true },
+    };
+
+    expect(saveSave(legacy as ReturnType<typeof createDefaultSave>)).toBe(true);
+    expect(loadSave()).toEqual({
+      ...legacy,
+      stats: {
+        missionsPlayed: 0,
+        missionsWon: 0,
+        winStreak: 2,
+        pressureWinsClean: 3,
+        welcomeGiven: true,
+      },
+    });
   });
 
   test('resetSave clears stored data', () => {

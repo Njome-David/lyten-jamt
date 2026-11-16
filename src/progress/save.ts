@@ -30,7 +30,9 @@ export function createDefaultSave(): SaveV1 {
 }
 
 /**
- * Validates the shape of a loaded object to guarantee it satisfies SaveV1.
+ * Validates the stable SaveV1 fields. Career counters were added after the initial
+ * SaveV1 release, so missing counters are valid legacy data and are filled in by
+ * normalizeSave rather than causing the player's existing save to be discarded.
  */
 export function isValidSave(data: unknown): data is SaveV1 {
   if (!data || typeof data !== 'object') return false;
@@ -38,7 +40,7 @@ export function isValidSave(data: unknown): data is SaveV1 {
 
   if (s.v !== 1) return false;
   if (!s.profile || typeof s.profile.codename !== 'string' || typeof s.profile.avatarId !== 'string') return false;
-  if (typeof s.xp !== 'number' || isNaN(s.xp) || s.xp < 0) return false;
+  if (typeof s.xp !== 'number' || !Number.isFinite(s.xp) || s.xp < 0) return false;
   if (
     !s.streak ||
     typeof s.streak.count !== 'number' ||
@@ -57,6 +59,11 @@ export function isValidSave(data: unknown): data is SaveV1 {
   ) {
     return false;
   }
+  for (const counter of [s.stats.missionsPlayed, s.stats.missionsWon]) {
+    if (counter !== undefined && (typeof counter !== 'number' || !Number.isFinite(counter) || counter < 0)) {
+      return false;
+    }
+  }
   if (!Array.isArray(s.seen)) return false;
   if (
     !s.settings ||
@@ -68,6 +75,17 @@ export function isValidSave(data: unknown): data is SaveV1 {
   }
 
   return true;
+}
+
+function normalizeSave(save: SaveV1): SaveV1 {
+  const defaults = createDefaultSave();
+  return {
+    ...save,
+    stats: {
+      ...defaults.stats,
+      ...save.stats,
+    },
+  };
 }
 
 // In-memory fallback for SSR or headless test environments without DOM localStorage
@@ -112,7 +130,7 @@ function removeStorageItem(key: string): void {
 
 /**
  * Loads and validates player save from localStorage (or fallback).
- * If corrupted, unreadable, or missing, safely starts fresh without crashing.
+ * If corrupt or unreadable, safely starts fresh without crashing.
  */
 export function loadSave(): SaveV1 {
   try {
@@ -120,9 +138,9 @@ export function loadSave(): SaveV1 {
     if (!raw) {
       return createDefaultSave();
     }
-    const parsed = JSON.parse(raw);
+    const parsed: unknown = JSON.parse(raw);
     if (isValidSave(parsed)) {
-      return parsed;
+      return normalizeSave(parsed);
     }
     // Corrupt or outdated shape: start fresh safely
     return createDefaultSave();
@@ -255,8 +273,8 @@ export function recordMissionCompletion(
     streak: streakUpdate.streak,
     best: nextBest,
     stats: {
-      missionsPlayed: (currentSave.stats.missionsPlayed ?? 0) + 1,
-      missionsWon: (currentSave.stats.missionsWon ?? 0) + (params.isWon ? 1 : 0),
+      missionsPlayed: currentSave.stats.missionsPlayed + 1,
+      missionsWon: currentSave.stats.missionsWon + (params.isWon ? 1 : 0),
       winStreak: nextWinStreak,
       pressureWinsClean: nextPressureWinsClean,
       welcomeGiven: true,

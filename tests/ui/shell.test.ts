@@ -121,6 +121,9 @@ describe('T05: Shell UI and screen state machine', () => {
       React.createElement(Title, { onStart: () => {}, save: mockSave, onOpenLocker: () => {} })
     );
     expect(titleHtml).toContain('data-testid="btn-start"');
+    expect(titleHtml).toContain('data-testid="btn-astronaut-locker"');
+    expect(titleHtml).toContain('Test');
+    expect(titleHtml).toContain('Space Cadet');
 
     // Destination
     const destHtml = renderToStaticMarkup(

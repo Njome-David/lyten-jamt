@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import type { SaveV1 } from '../../progress/types';
+import { getRankForXp } from '../../progress/ranks';
 import { DataPassportModal } from '../components/DataPassportModal';
 
 interface TitleProps {
@@ -11,8 +13,11 @@ interface TitleProps {
   onOpenLocker: () => void;
 }
 
-export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
+export function Title({ onStart, onToggleJudge, isJudgeEnabled, save, onOpenLocker }: TitleProps) {
   const [isPassportOpen, setIsPassportOpen] = useState(false);
+  const rank = getRankForXp(save.xp);
+  const streakDays = save.streak.count;
+  const jokerReady = save.streak.jokerReady;
 
   return (
     <div
@@ -44,6 +49,7 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
           alignItems: 'center',
           gap: '16px',
           boxShadow: 'var(--shadow-card)',
+          pointerEvents: 'auto',
         }}
       >
         {/* Avatar placeholder */}
@@ -147,6 +153,30 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
 
         <button
           type="button"
+          data-testid="btn-astronaut-locker"
+          onClick={onOpenLocker}
+          style={{
+            width: '100%',
+            height: '48px',
+            fontSize: '15px',
+            fontWeight: 600,
+            background: 'var(--accent)',
+            color: '#05070d',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            marginBottom: '10px',
+          }}
+        >
+          Astronaut Locker
+        </button>
+
+        <button
+          type="button"
           data-testid="btn-title-passport"
           onClick={() => setIsPassportOpen(true)}
           style={{
@@ -196,10 +226,7 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
         )}
       </div>
 
-      <DataPassportModal
-        isOpen={isPassportOpen}
-        onClose={() => setIsPassportOpen(false)}
-      />
+      <DataPassportModal isOpen={isPassportOpen} onClose={() => setIsPassportOpen(false)} />
     </div>
   );
 }
