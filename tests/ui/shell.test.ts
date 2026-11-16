@@ -106,10 +106,24 @@ describe('T05: Shell UI and screen state machine', () => {
 
   it('renders all screens with accessible buttons and maximum 3 choices rule', () => {
     // Title
+    const mockSave = {
+      v: 1 as const,
+      profile: { codename: 'Test', avatarId: 'avatar-1' },
+      xp: 100,
+      streak: { count: 1, lastDay: '2026-11-01', jokerReady: false },
+      badges: [] as string[],
+      best: {},
+      stats: { missionsPlayed: 0, missionsWon: 0, winStreak: 0, pressureWinsClean: 0, welcomeGiven: false },
+      seen: [] as string[],
+      settings: { muted: false, extraTime: false, speed: 1 as const },
+    };
     const titleHtml = renderToStaticMarkup(
-      React.createElement(Title, { onStart: () => {} })
+      React.createElement(Title, { onStart: () => {}, save: mockSave, onOpenLocker: () => {} })
     );
     expect(titleHtml).toContain('data-testid="btn-start"');
+    expect(titleHtml).toContain('data-testid="btn-astronaut-locker"');
+    expect(titleHtml).toContain('Test');
+    expect(titleHtml).toContain('Space Cadet');
 
     // Destination
     const destHtml = renderToStaticMarkup(

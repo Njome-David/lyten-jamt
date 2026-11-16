@@ -1,16 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
+import type { SaveV1 } from '../../progress/types';
+import { getRankForXp } from '../../progress/ranks';
 import { DataPassportModal } from '../components/DataPassportModal';
 
 interface TitleProps {
   onStart: () => void;
   onToggleJudge?: () => void;
   isJudgeEnabled?: boolean;
+  save: SaveV1;
+  onOpenLocker: () => void;
 }
 
-export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
+export function Title({ onStart, onToggleJudge, isJudgeEnabled, save, onOpenLocker }: TitleProps) {
   const [isPassportOpen, setIsPassportOpen] = useState(false);
+  const rank = getRankForXp(save.xp);
+  const streakDays = save.streak.count;
+  const jokerReady = save.streak.jokerReady;
 
   return (
     <div
@@ -28,6 +35,50 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
         pointerEvents: 'none',
       }}
     >
+      {/* Profile Card */}
+      <div
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg, 20px)',
+          padding: '24px 20px',
+          maxWidth: '560px',
+          width: '100%',
+          marginBottom: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          boxShadow: 'var(--shadow-card)',
+          pointerEvents: 'auto',
+        }}
+      >
+        {/* Avatar placeholder */}
+        <div
+          style={{
+            width: '64px',
+            height: '64px',
+            background: 'var(--accent)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '32px',
+            color: '#05070d',
+          }}
+          aria-label="avatar"
+        >
+          🚀
+        </div>
+        <div style={{ textAlign: 'left' }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--accent)' }}>{save.profile.codename}</div>
+          <div style={{ fontSize: '13px', color: 'var(--ink-dim)' }}>{rank.title}</div>
+          <div style={{ fontSize: '13px', color: 'var(--ink-dim)' }}>{save.xp} XP</div>
+          <div style={{ fontSize: '13px', color: 'var(--ink-dim)' }}>{streakDays} day{streakDays !== 1 ? 's' : ''} streak</div>
+          {jokerReady && <div style={{ fontSize: '16px' }}>🃏 Joker Shield</div>}
+        </div>
+      </div>
+
+      {/* Header */}
       <div
         style={{
           background: 'var(--surface)',
@@ -53,7 +104,6 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
         >
           NASA Space Apps • Team LYTEN
         </div>
-
         <h1
           style={{
             fontSize: '32px',
@@ -65,7 +115,6 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
         >
           Junior Astronaut Mission Trainer
         </h1>
-
         <p
           style={{
             fontSize: '16px',
@@ -76,7 +125,6 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
         >
           Take command of an outpost on the Moon or Mars. Every decision costs power, air, food, or health.
         </p>
-
         <button
           type="button"
           data-testid="btn-start"
@@ -101,6 +149,30 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
           <span aria-hidden="true">🚀</span>
           <span>Start Mission</span>
           <span style={{ fontSize: '13px', opacity: 0.75, marginLeft: '6px' }}>(Space / 1)</span>
+        </button>
+
+        <button
+          type="button"
+          data-testid="btn-astronaut-locker"
+          onClick={onOpenLocker}
+          style={{
+            width: '100%',
+            height: '48px',
+            fontSize: '15px',
+            fontWeight: 600,
+            background: 'var(--accent)',
+            color: '#05070d',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            marginBottom: '10px',
+          }}
+        >
+          Astronaut Locker
         </button>
 
         <button
@@ -154,10 +226,7 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
         )}
       </div>
 
-      <DataPassportModal
-        isOpen={isPassportOpen}
-        onClose={() => setIsPassportOpen(false)}
-      />
+      <DataPassportModal isOpen={isPassportOpen} onClose={() => setIsPassportOpen(false)} />
     </div>
   );
 }
