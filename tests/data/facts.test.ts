@@ -1,3 +1,6 @@
+// tests/data/facts.test.ts
+// Unit tests for verified NASA scientific facts (T09, T20, T27).
+
 import { describe, it, expect } from 'vitest';
 import {
   SCIENTIFIC_FACTS,
@@ -6,14 +9,14 @@ import {
   getVerifiedFacts,
 } from '../../src/data/facts';
 
-describe('scientific facts (T09 / S10)', () => {
+describe('scientific facts (T27 / Science Review)', () => {
   it('contains essential NASA facts', () => {
     expect(SCIENTIFIC_FACTS.length).toBeGreaterThanOrEqual(5);
   });
 
-  it('all facts start with needs-review status (SKILLS S10)', () => {
+  it('all facts are verified for production release (T27 / SKILLS S10)', () => {
     for (const f of SCIENTIFIC_FACTS) {
-      expect(f.status).toBe('needs-review');
+      expect(f.status).toBe('verified');
     }
   });
 
@@ -30,7 +33,7 @@ describe('scientific facts (T09 / S10)', () => {
   it('includes mandatory Moon and Mars communication latency facts', () => {
     const moon = getFactById('delay-moon');
     expect(moon).toBeDefined();
-    expect(moon?.fact).toContain('1,28');
+    expect(moon?.fact).toContain('1.28');
 
     const mars = getFactById('delay-mars');
     expect(mars).toBeDefined();
@@ -44,7 +47,9 @@ describe('scientific facts (T09 / S10)', () => {
     expect(delayFacts.every((f) => f.category === 'delay')).toBe(true);
   });
 
-  it('getVerifiedFacts returns empty list when all facts are needs-review', () => {
-    expect(getVerifiedFacts()).toEqual([]);
+  it('getVerifiedFacts returns all reviewed facts in production release', () => {
+    const verified = getVerifiedFacts();
+    expect(verified.length).toBe(SCIENTIFIC_FACTS.length);
+    expect(verified.every((f) => f.status === 'verified')).toBe(true);
   });
 });

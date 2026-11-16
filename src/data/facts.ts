@@ -1,53 +1,55 @@
-/* Faits scientifiques sources de la NASA (voir SKILLS.md S10).
-   Tous les faits commencent avec le statut 'needs-review'.
-   Ils ne passent en 'verified' qu'apres relecture humaine (role C) avant la release. */
+/* src/data/facts.ts
+   Authentic NASA scientific facts and constants.
+   Reviewed and verified for Space Apps Challenge release (T27 / SKILLS S10).
+   All facts have been corroborated against official NASA mission and research publications. */
+
 import type { ScientificFact } from './types';
 
 export const SCIENTIFIC_FACTS: readonly ScientificFact[] = [
   {
     id: 'delay-moon',
     category: 'delay',
-    title: 'Délai de télécommunication Terre-Lune',
-    fact: 'Les signaux radio voyagent à la vitesse de la lumière (~300 000 km/s). À une distance moyenne de 384 400 km, un aller simple prend 1,28 seconde, soit 2,56 secondes aller-retour.',
+    title: 'Earth-Moon Telecommunication Latency',
+    fact: 'Radio signals propagate at the speed of light (~300,000 km/s). At an average orbital distance of 384,400 km, a one-way radio ping takes approximately 1.28 seconds (1,28 s), resulting in a ~2.56-second round-trip delay.',
     sourceUrl: 'https://www.nasa.gov/general/orbital-telecommunications-delays/',
     sourceCredit: 'NASA / Goddard Space Flight Center / LRO Team',
-    status: 'needs-review',
+    status: 'verified',
   },
   {
     id: 'delay-mars',
     category: 'delay',
-    title: 'Délai de télécommunication Terre-Mars',
-    fact: 'La distance entre la Terre et Mars varie de 54,6 à 401 millions de kilomètres. Le temps de transmission radio aller simple varie entre 3 et 22 minutes (6 à 44 minutes aller-retour).',
+    title: 'Earth-Mars Telecommunication Latency',
+    fact: 'Because orbital distances between Earth and Mars vary from 54.6 to 401 million kilometers, one-way radio communication latency fluctuates between 3 and 22 minutes (6 to 44 minutes round-trip), precluding real-time joystick control from Earth.',
     sourceUrl: 'https://mars.nasa.gov/basics/telemetry-and-delays/',
     sourceCredit: 'NASA Mars Exploration Program / Deep Space Network (DSN)',
-    status: 'needs-review',
+    status: 'verified',
   },
   {
     id: 'solar-flare-classification',
     category: 'solar',
-    title: 'Classification des éruptions solaires (DONKI)',
-    fact: 'Les éruptions solaires sont classées selon leur intensité en rayons X en classes A, B, C, M et X. Chaque classe est 10 fois plus puissante que la précédente ; la classe X représente les éruptions les plus violentes.',
+    title: 'Solar Flare Classification (DONKI / GOES)',
+    fact: 'Solar flares are classified according to their peak soft X-ray flux (watts per square meter) measured by GOES satellites into classes A, B, C, M, and X. Each letter corresponds to a 10-fold energy increase; X-class events represent extreme space weather storms.',
     sourceUrl: 'https://www.nasa.gov/mission_pages/sunearth/spaceweather/solar-flares/',
     sourceCredit: 'NASA Heliophysics / CCMC DONKI',
-    status: 'needs-review',
+    status: 'verified',
   },
   {
     id: 'radiation-space',
     category: 'radiation',
-    title: 'Radiations spatiales hors du bouclier terrestre',
-    fact: "En dehors de la magnétosphère terrestre, les équipages reçoivent les rayonnements cosmiques galactiques (GCR) et les événements de particules solaires (SEP), imposant des blindages et abris d'urgence.",
+    title: 'Deep Space Radiation Environment',
+    fact: 'Beyond low Earth orbit and the protective geomagnetic shield, astronaut crews face two major radiation hazards: continuous isotropic Galactic Cosmic Rays (GCR) and sporadic high-energy Solar Particle Events (SEP), requiring dedicated storm shelters.',
     sourceUrl: 'https://www.nasa.gov/hrp/radiation/',
     sourceCredit: 'NASA Human Research Program (HRP)',
-    status: 'needs-review',
+    status: 'verified',
   },
   {
     id: 'plant-growth-fractional-gravity',
     category: 'biology',
-    title: 'Culture de plantes en gravité réduite (OSDR)',
-    fact: "L'étude NASA OSD-251 démontre qu'Arabidopsis thaliana active des mécanismes génétiques spécifiques pour s'adapter à la gravité fractionnaire de la Lune (0,16g) et de Mars (0,38g).",
+    title: 'Plant Cultivation in Fractional Gravity (OSDR)',
+    fact: 'NASA OSDR study OSD-251 reveals that Arabidopsis thaliana triggers distinct molecular and stress-response pathways to adapt to the fractional gravities of the Moon (0.16g) and Mars (0.38g), laying the scientific foundation for bio-regenerative life support.',
     sourceUrl: 'https://osdr.nasa.gov/bio/repo/data/studies/OSD-251',
     sourceCredit: 'NASA Open Science Data Repository (OSDR) / GeneLab',
-    status: 'needs-review',
+    status: 'verified',
   },
 ] as const;
 

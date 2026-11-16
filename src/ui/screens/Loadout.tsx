@@ -24,6 +24,7 @@ export function Loadout({ loadout, onUpdate, onLaunch, onBack }: LoadoutProps) {
         textAlign: 'center',
         position: 'relative',
         zIndex: 1,
+        pointerEvents: 'none',
       }}
     >
       <div
@@ -36,6 +37,7 @@ export function Loadout({ loadout, onUpdate, onLaunch, onBack }: LoadoutProps) {
           width: '100%',
           boxShadow: 'var(--shadow-card)',
           backdropFilter: 'blur(12px)',
+          pointerEvents: 'auto',
         }}
       >
         <h2 style={{ fontSize: '26px', margin: '0 0 6px 0', fontWeight: 800 }}>

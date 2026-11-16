@@ -3,7 +3,7 @@
    Dynamically aggregates real NASA snapshot metadata (meta block) and verified scientific facts.
    Adheres to docs/spec/DATA-CATALOG.md and AGENTS.md. */
 
-import { SCIENTIFIC_FACTS } from './facts';
+import { getVerifiedFacts } from './facts';
 
 import recentFlaresSnapshot from './snapshots/donki-flr-recent.json';
 import may2024FlaresSnapshotA from './snapshots/donki-flr-may2024-a.json';
@@ -141,7 +141,7 @@ export function generateDataPassport(): PassportEntry[] {
       isLive: false,
       credit: 'NASA GSFC, JPL DSN, Human Research Program',
       note: 'Peer-reviewed physical constants: Moon radio delay (1.28 s), Mars transmission delays (3-22 min), cosmic rays and fractional gravity.',
-      recordCount: SCIENTIFIC_FACTS.length,
+      recordCount: getVerifiedFacts().length,
       gameUsage:
         'Calibrates telecommunication delays, "Ask Mission Control" dialog intervals, and pedagogical science popups.',
       category: 'delay',
