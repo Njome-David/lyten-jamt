@@ -34,6 +34,7 @@ export function Debrief({ destination, site, missionId, score, onRestart, meterH
         textAlign: 'center',
         position: 'relative',
         zIndex: 1,
+        pointerEvents: 'none',
       }}
     >
       <div
@@ -46,6 +47,7 @@ export function Debrief({ destination, site, missionId, score, onRestart, meterH
           width: '100%',
           boxShadow: 'var(--shadow-card)',
           backdropFilter: 'blur(12px)',
+          pointerEvents: 'auto',
         }}
       >
         {/* Result Icon */}

@@ -25,6 +25,7 @@ import { getSolarContext } from '../data/solar';
 import { MISSIONS } from '../content/missions';
 import type { OptionCostDeltas } from './components/OptionCard';
 import { useJudgeMode, JudgePanel, DEFAULT_DEMO_PRESET, buildForcedAlert } from '../judge';
+import { audioManager } from '../audio';
 
 const INITIAL_LOADOUT: LoadoutConfig = {
   crew: 3,
@@ -166,7 +167,23 @@ export function GameShell() {
     saveSave(updated);
   };
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => audioManager.isMuted());
   const judge = useJudgeMode();
+
+  useEffect(() => {
+    return audioManager.onMuteChange((m) => setIsMuted(m));
+  }, []);
+
+  // Unlock WebAudio on first user interaction
+  useEffect(() => {
+    const handleUnlock = () => audioManager.unlockAudio();
+    window.addEventListener('pointerdown', handleUnlock, { once: true });
+    window.addEventListener('keydown', handleUnlock, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', handleUnlock);
+      window.removeEventListener('keydown', handleUnlock);
+    };
+  }, []);
 
   // Real NASA DONKI solar weather context (supports May 2024 historic storm)
   const solarContext = useMemo(
@@ -221,6 +238,8 @@ export function GameShell() {
   }, [state.runState, currentStep, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext]);
 
   const handleLaunch = useCallback(() => {
+    audioManager.playSfx('confirm');
+    audioManager.triggerHaptic('button');
     const totalSteps = judge.state.shortRun ? 3 : 6;
     const run = createRun(
       {
@@ -238,6 +257,8 @@ export function GameShell() {
   }, [judge.state.shortRun, state.destination, state.missionId, state.site, state.difficulty, state.loadout, solarContext]);
 
   const handlePlayDemo = useCallback(() => {
+    audioManager.playSfx('confirm');
+    audioManager.triggerHaptic('button');
     const totalSteps = judge.state.shortRun ? 3 : 6;
     const run = createRun(
       {
@@ -263,6 +284,8 @@ export function GameShell() {
     (style: OptionStyle) => {
       if (isExecuting) return;
       setIsExecuting(true);
+      audioManager.playSfx('execute');
+      audioManager.triggerHaptic('button');
 
       const totalSteps = judge.state.shortRun ? 3 : 6;
       const activeRun =
@@ -301,8 +324,18 @@ export function GameShell() {
 
             if (res.state.status !== 'running') {
               const score = scoreRun(res.state);
+              const isWon = res.state.status === 'won' || score.stars > 0;
+              if (isWon) {
+                audioManager.playSfx('win');
+                audioManager.triggerHaptic('success');
+              } else {
+                audioManager.playSfx('lose');
+                audioManager.triggerHaptic('alert');
+              }
               dispatch({ type: 'FINISH_MISSION', score });
             } else if (res.alert) {
+              audioManager.playSfx('alert');
+              audioManager.triggerHaptic('alert');
               dispatch({ type: 'RESOLVE_STEP_SUCCESS', runState: res.state, alert: res.alert });
             } else {
               dispatch({ type: 'RESOLVE_STEP_SUCCESS', runState: res.state });
@@ -317,9 +350,19 @@ export function GameShell() {
   const handleAlertChoice = useCallback(
     (choice: 'A' | 'B' | 'C' | 'EXPIRED') => {
       if (!state.runState) return;
+      audioManager.playSfx('confirm');
+      audioManager.triggerHaptic('button');
       const res = resolveStep(state.runState, { type: 'ALERT_CHOICE', choice }, solarContext);
       if (res.state.status !== 'running') {
         const score = scoreRun(res.state);
+        const isWon = res.state.status === 'won' || score.stars > 0;
+        if (isWon) {
+          audioManager.playSfx('win');
+          audioManager.triggerHaptic('success');
+        } else {
+          audioManager.playSfx('lose');
+          audioManager.triggerHaptic('alert');
+        }
         dispatch({ type: 'FINISH_MISSION', score });
       } else {
         dispatch({ type: 'RESOLVE_ALERT', runState: res.state });
@@ -337,6 +380,13 @@ export function GameShell() {
 
       const key = e.key.toLowerCase();
 
+      // Audio mute shortcut [M]
+      if (key === 'm') {
+        e.preventDefault();
+        audioManager.toggleMute();
+        return;
+      }
+
       // Judge mode toggle shortcut [J]
       if (key === 'j') {
         e.preventDefault();
@@ -345,7 +395,7 @@ export function GameShell() {
       }
 
       // Pause toggle works from mission screen or overlay
-      if (state.screen === 'mission' && (key === 'p' || key === 'm')) {
+      if (state.screen === 'mission' && (key === 'p' || key === 'escape')) {
         e.preventDefault();
         dispatch({ type: 'TOGGLE_PAUSE' });
         return;
@@ -494,6 +544,7 @@ export function GameShell() {
         body={state.destination}
         site={state.site}
         cinematic={state.cinematic ?? undefined}
+        onSelectBody={(dest: Body) => dispatch({ type: 'SELECT_DESTINATION', destination: dest })}
       />
 
       {/* Screen Overlay Content */}
@@ -503,6 +554,7 @@ export function GameShell() {
           zIndex: 10,
           width: '100%',
           height: '100%',
+          pointerEvents: 'none',
         }}
       >
         {state.screen === 'title' && (
@@ -563,6 +615,8 @@ export function GameShell() {
             stepDescription={currentStep?.text}
             activeAlert={state.activeAlert}
             isExecuting={isExecuting}
+            isMuted={isMuted}
+            onToggleMute={() => audioManager.toggleMute()}
             onAction={handleAction}
             onAlertChoice={handleAlertChoice}
             onPause={() => dispatch({ type: 'TOGGLE_PAUSE' })}

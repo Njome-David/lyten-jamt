@@ -5,6 +5,7 @@
 import React from 'react';
 import { ProgressTrack } from './ProgressTrack';
 import { MeterBar, type MeterType } from './MeterBar';
+import { DataChip } from './DataChip';
 
 export interface HudBarProps {
   stepIndex: number;
@@ -83,24 +84,28 @@ export const HudBar: React.FC<HudBarProps> = ({
           value={meters.power}
           deltaPreview={deltaPreviews?.power}
           floatingDelta={floatingDeltas?.power}
+          showDataTag={isDataLoupeActive}
         />
         <MeterBar
           type="air"
           value={meters.air}
           deltaPreview={deltaPreviews?.air}
           floatingDelta={floatingDeltas?.air}
+          showDataTag={isDataLoupeActive}
         />
         <MeterBar
           type="health"
           value={meters.health}
           deltaPreview={deltaPreviews?.health}
           floatingDelta={floatingDeltas?.health}
+          showDataTag={isDataLoupeActive}
         />
         <MeterBar
           type="food"
           value={meters.food}
           deltaPreview={deltaPreviews?.food}
           floatingDelta={floatingDeltas?.food}
+          showDataTag={isDataLoupeActive}
         />
       </div>
 
@@ -138,6 +143,14 @@ export const HudBar: React.FC<HudBarProps> = ({
         >
           <span aria-hidden="true">☀️</span>
           <span style={{ textTransform: 'capitalize' }}>{solarLevel}</span>
+          {isDataLoupeActive && (
+            <DataChip
+              origin="REAL"
+              label="DONKI"
+              size="xs"
+              sourceDetail="GOES Solar X-Ray flux telemetry"
+            />
+          )}
         </div>
 
         {/* Data Loupe Button */}

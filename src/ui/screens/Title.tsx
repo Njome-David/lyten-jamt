@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
-import type { SaveV1 } from '../../engine/types';
-import { getRankForXp } from '../../progress/ranks';
+import React, { useState } from 'react';
+import { DataPassportModal } from '../components/DataPassportModal';
 
 interface TitleProps {
   onStart: () => void;
@@ -12,10 +11,8 @@ interface TitleProps {
   onOpenLocker: () => void;
 }
 
-export function Title({ onStart, onToggleJudge, isJudgeEnabled, save, onOpenLocker }: TitleProps) {
-  const rank = getRankForXp(save.xp);
-  const streakDays = save.streak.count;
-  const jokerReady = save.streak.jokerReady;
+export function Title({ onStart, onToggleJudge, isJudgeEnabled }: TitleProps) {
+  const [isPassportOpen, setIsPassportOpen] = useState(false);
 
   return (
     <div
@@ -30,6 +27,7 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled, save, onOpenLock
         textAlign: 'center',
         position: 'relative',
         zIndex: 1,
+        pointerEvents: 'none',
       }}
     >
       {/* Profile Card */}
@@ -85,6 +83,7 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled, save, onOpenLock
           width: '100%',
           boxShadow: 'var(--shadow-card)',
           backdropFilter: 'blur(12px)',
+          pointerEvents: 'auto',
         }}
       >
         <div
@@ -145,28 +144,32 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled, save, onOpenLock
           <span>Start Mission</span>
           <span style={{ fontSize: '13px', opacity: 0.75, marginLeft: '6px' }}>(Space / 1)</span>
         </button>
+
         <button
           type="button"
-          data-testid="btn-astronaut-locker"
-          onClick={onOpenLocker}
+          data-testid="btn-title-passport"
+          onClick={() => setIsPassportOpen(true)}
           style={{
             width: '100%',
-            height: '48px',
-            fontSize: '15px',
-            fontWeight: 600,
-            background: 'var(--accent)',
-            color: '#05070d',
-            border: '1px solid var(--border)',
-            borderRadius: '4px',
+            minHeight: '44px',
+            fontSize: '13px',
+            fontWeight: 700,
+            background: 'var(--chip-real-bg, rgba(79, 216, 255, 0.15))',
+            border: '1px solid var(--chip-real-border, rgba(79, 216, 255, 0.4))',
+            color: 'var(--chip-real-ink, #4fd8ff)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
             cursor: 'pointer',
+            marginBottom: '10px',
+            borderRadius: 'var(--radius, 14px)',
           }}
         >
-          Astronaut Locker
+          <span aria-hidden="true">📖</span>
+          <span>NASA Data Passport</span>
         </button>
+
         {onToggleJudge && (
           <button
             type="button"
@@ -192,6 +195,11 @@ export function Title({ onStart, onToggleJudge, isJudgeEnabled, save, onOpenLock
           </button>
         )}
       </div>
+
+      <DataPassportModal
+        isOpen={isPassportOpen}
+        onClose={() => setIsPassportOpen(false)}
+      />
     </div>
   );
 }

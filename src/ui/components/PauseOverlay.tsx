@@ -1,12 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { DataPassportModal } from './DataPassportModal';
 
 interface PauseOverlayProps {
   onResume: () => void;
+  onOpenPassport?: () => void;
 }
 
-export function PauseOverlay({ onResume }: PauseOverlayProps) {
+export function PauseOverlay({ onResume, onOpenPassport }: PauseOverlayProps) {
+  const [isPassportOpen, setIsPassportOpen] = useState(false);
+
+  const handleOpenPassport = () => {
+    if (onOpenPassport) {
+      onOpenPassport();
+    } else {
+      setIsPassportOpen(true);
+    }
+  };
   return (
     <div
       data-testid="overlay-pause"
@@ -67,12 +78,42 @@ export function PauseOverlay({ onResume }: PauseOverlayProps) {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
+            marginBottom: '12px',
           }}
         >
           <span>Resume Mission</span>
           <span style={{ fontSize: '12px', opacity: 0.8 }}>(P / Space)</span>
         </button>
+
+        <button
+          type="button"
+          data-testid="btn-pause-passport"
+          onClick={handleOpenPassport}
+          style={{
+            width: '100%',
+            height: '44px',
+            fontSize: '14px',
+            fontWeight: 700,
+            background: 'var(--chip-real-bg, rgba(79, 216, 255, 0.15))',
+            border: '1px solid var(--chip-real-border, rgba(79, 216, 255, 0.4))',
+            color: 'var(--chip-real-ink, #4fd8ff)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            borderRadius: 'var(--radius, 14px)',
+          }}
+        >
+          <span aria-hidden="true">📖</span>
+          <span>NASA Data Passport</span>
+        </button>
       </div>
+
+      <DataPassportModal
+        isOpen={isPassportOpen}
+        onClose={() => setIsPassportOpen(false)}
+      />
     </div>
   );
 }

@@ -56,7 +56,7 @@ Every number in the game carries a chip: **REAL DATA** (with source, fetch time,
 | NASA delay figures | Mars signal delay 3 to 22 minutes; Moon about 1.2 seconds | Cited in the app |
 | NASA Image and Video Library | Badge avatars with credits and captions | Downloaded by script |
 
-Full mapping: `docs/SCIENCE.md`. Technical details: `docs/TECHNICAL.md`. Implementation rules: `SPEC.md`.
+Full mapping: `docs/SCIENCE.md`. Technical details: `docs/TECHNICAL.md`. Implementation rules: `SPEC.md`. Submission package & video scripts: `docs/submission/SUBMISSION.md`.
 
 ## Run locally (Ubuntu)
 
